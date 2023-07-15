@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -10,7 +11,7 @@ const (
 	configPath = "$HOME/.config/chatify"
 )
 
-func setEnv() {
+func setEnv() error {
 	// token setting
 	viper.AddConfigPath(configPath)
 	viper.SetConfigName("token")
@@ -19,12 +20,16 @@ func setEnv() {
 	// client setting
 	viper.SetConfigName("client")
 	viper.SetConfigType("yaml")
-	viper.MergeInConfig()
+	if err := viper.MergeInConfig(); err != nil {
+		return fmt.Errorf("fail to merge config: %v", err)
+	}
 
 	// load
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			fmt.Println("config file does not exist")
+			return errors.New("config file does not exist")
 		}
 	}
+
+	return nil
 }
