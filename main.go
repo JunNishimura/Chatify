@@ -31,6 +31,8 @@ var (
 )
 
 func main() {
+	setEnv()
+
 	if err := godotenv.Load(envFileName); err != nil {
 		log.Fatalf("fail to load env file: %v\n", err)
 	}
