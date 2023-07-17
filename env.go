@@ -1,4 +1,4 @@
-package chatify
+package main
 
 import (
 	"bufio"
@@ -159,8 +159,4 @@ func isClientInfoSet() bool {
 	openAIApiKey := clientViper.GetString(OpenAIApiKeyName)
 
 	return spotifyID != "" && spotifySecret != "" && openAIApiKey != ""
-}
-
-func GetOpenAIAPIKey() string {
-	return clientViper.GetString(OpenAIApiKeyName)
 }

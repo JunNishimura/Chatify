@@ -1,4 +1,4 @@
-package chatify
+package main
 
 import (
 	"context"
