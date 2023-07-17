@@ -160,3 +160,7 @@ func isClientInfoSet() bool {
 
 	return spotifyID != "" && spotifySecret != "" && openAIApiKey != ""
 }
+
+func GetOpenAIAPIKey() string {
+	return clientViper.GetString(OpenAIApiKeyName)
+}
