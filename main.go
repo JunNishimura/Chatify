@@ -7,54 +7,38 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/JunNishimura/Chatify/cmd"
-	"github.com/google/uuid"
-	"github.com/joho/godotenv"
-	"github.com/pkg/browser"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
 const (
-	envFileName = ".env"
 	redirectURI = "http://localhost:8888/callback"
-	port        = "8888"
 )
 
 var (
-	auth          *spotifyauth.Authenticator
-	clientChannel = make(chan *spotify.Client)
-	server        *http.Server
-	state         string
+	clientChannel = make(chan *spotify.Client, 1)
 )
 
 func main() {
-	if err := setEnv(); err != nil {
-		fmt.Print(err)
+	err := initEnv()
+	if err != ErrConfigNotFound && err != nil {
+		log.Fatal(err)
 	}
 
-	if err := godotenv.Load(envFileName); err != nil {
-		log.Fatalf("fail to load env file: %v\n", err)
-	}
-	auth = spotifyauth.New(
-		spotifyauth.WithRedirectURL(redirectURI),
-		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
-	)
-
-	server = &http.Server{Addr: fmt.Sprintf(":%s", port)}
-	state = uuid.New().String()
-	http.HandleFunc("/callback", completeAuth)
-	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+	// check if token viper is set
+	if !isClientInfoSet() {
+		if err := askClientInfo(); err != nil {
 			log.Fatal(err)
 		}
-	}()
 
-	authURL := auth.AuthURL(state)
-	if err := browser.OpenURL(authURL); err != nil {
-		log.Fatalf("fail to open: %s\n", authURL)
+		authorize()
+	} else {
+		ctx := context.Background()
+		token := getToken()
+		httpClient := spotifyauth.New().Client(ctx, token)
+		clientChannel <- spotify.New(httpClient)
 	}
 
 	client := <-clientChannel
