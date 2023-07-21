@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/JunNishimura/Chatify/cmd"
+	"github.com/JunNishimura/Chatify/internal/hey"
+	"github.com/spf13/cobra"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
@@ -71,5 +72,18 @@ func main() {
 	}
 	fmt.Printf("logged in as: %s\n", user.DisplayName)
 
-	cmd.Execute()
+	rootCmd := &cobra.Command{
+		Use:   "chatify",
+		Short: "chatify is a CLI tool that suggests music recommendations for you",
+		Long:  "chatify is a CLI tool that suggests music recommendations for you",
+		Run:   func(cmd *cobra.Command, args []string) {},
+	}
+
+	heyCommand := hey.NewCommand(clientViper.GetString(OpenAIApiKeyName))
+
+	rootCmd.AddCommand(heyCommand)
+
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatal(err)
+	}
 }
