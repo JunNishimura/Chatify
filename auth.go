@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/browser"
 	"github.com/zmb3/spotify/v2"
-	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
 const (
@@ -17,7 +16,6 @@ const (
 )
 
 var (
-	auth   *spotifyauth.Authenticator
 	state  string
 	server *http.Server
 )
@@ -50,12 +48,6 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 }
 
 func authorize() {
-	auth = spotifyauth.New(
-		spotifyauth.WithClientID(clientViper.GetString(SpotifyIDKeyName)),
-		spotifyauth.WithClientSecret(clientViper.GetString(SpotifySecretKeyName)),
-		spotifyauth.WithRedirectURL(redirectURI),
-		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
-	)
 	server = &http.Server{Addr: fmt.Sprintf(":%s", port)}
 	state = uuid.New().String()
 	http.HandleFunc("/callback", completeAuth)

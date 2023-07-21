@@ -18,6 +18,7 @@ const (
 )
 
 var (
+	auth          *spotifyauth.Authenticator
 	clientChannel = make(chan *spotify.Client, 1)
 )
 
@@ -26,6 +27,13 @@ func main() {
 	if err != ErrConfigNotFound && err != nil {
 		log.Fatal(err)
 	}
+
+	auth = spotifyauth.New(
+		spotifyauth.WithClientID(clientViper.GetString(SpotifyIDKeyName)),
+		spotifyauth.WithClientSecret(clientViper.GetString(SpotifySecretKeyName)),
+		spotifyauth.WithRedirectURL(redirectURI),
+		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
+	)
 
 	// check if token viper is set
 	if !isClientInfoSet() {
@@ -37,8 +45,22 @@ func main() {
 	} else {
 		ctx := context.Background()
 		token := getToken()
-		httpClient := spotifyauth.New().Client(ctx, token)
-		clientChannel <- spotify.New(httpClient)
+
+		newToken, err := auth.RefreshToken(ctx, token)
+		if err != nil {
+			log.Fatalf("fail to get a new access token: %v", err)
+		}
+
+		// update an access token if it has expired
+		if token.AccessToken != newToken.AccessToken {
+			if err := saveToken(newToken); err != nil {
+				log.Fatalf("fail to save token: %v", err)
+			}
+		}
+
+		spotifyClient := spotify.New(auth.Client(ctx, newToken))
+
+		clientChannel <- spotifyClient
 	}
 
 	client := <-clientChannel
