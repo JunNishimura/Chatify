@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
-	"time"
 
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
@@ -98,20 +96,20 @@ func saveToken(token *oauth2.Token) error {
 	return nil
 }
 
-func getToken() *oauth2.Token {
-	accessToken := tokenViper.GetString(AccessTokenKeyName)
-	refreshToken := tokenViper.GetString(RefreshTokenKeyName)
-	expiration := tokenViper.GetString(ExpirationKeyName)
-	unix, _ := strconv.ParseInt(expiration, 10, 64)
-	expiry := time.Unix(unix, 0)
+// func getToken() *oauth2.Token {
+// 	accessToken := tokenViper.GetString(AccessTokenKeyName)
+// 	refreshToken := tokenViper.GetString(RefreshTokenKeyName)
+// 	expiration := tokenViper.GetString(ExpirationKeyName)
+// 	unix, _ := strconv.ParseInt(expiration, 10, 64)
+// 	expiry := time.Unix(unix, 0)
 
-	return &oauth2.Token{
-		AccessToken:  accessToken,
-		TokenType:    "bearer",
-		RefreshToken: refreshToken,
-		Expiry:       expiry,
-	}
-}
+// 	return &oauth2.Token{
+// 		AccessToken:  accessToken,
+// 		TokenType:    "bearer",
+// 		RefreshToken: refreshToken,
+// 		Expiry:       expiry,
+// 	}
+// }
 
 func askClientInfo() error {
 	// get spotify ID
