@@ -34,7 +34,7 @@ func completeAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// set token config
-	if err := setTokenInfo(token); err != nil {
+	if err := saveToken(token); err != nil {
 		log.Fatal(err)
 	}
 
