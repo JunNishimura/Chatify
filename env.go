@@ -86,7 +86,7 @@ func initEnv() error {
 	return nil
 }
 
-func setTokenInfo(token *oauth2.Token) error {
+func saveToken(token *oauth2.Token) error {
 	tokenViper.Set(AccessTokenKeyName, token.AccessToken)
 	tokenViper.Set(RefreshTokenKeyName, token.RefreshToken)
 	tokenViper.Set(ExpirationKeyName, token.Expiry.Unix())
