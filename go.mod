@@ -8,7 +8,7 @@ require (
 	github.com/sashabaranov/go-openai v1.14.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	github.com/zmb3/spotify/v2 v2.3.1
+	github.com/zmb3/spotify/v2 v2.3.2-0.20230424071627-89c95066f128
 	golang.org/x/oauth2 v0.7.0
 )
 
