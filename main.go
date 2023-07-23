@@ -79,7 +79,7 @@ func main() {
 		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
-	heyCommand := hey.NewCommand(clientViper.GetString(OpenAIApiKeyName))
+	heyCommand := hey.NewCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
 
 	rootCmd.AddCommand(heyCommand)
 
