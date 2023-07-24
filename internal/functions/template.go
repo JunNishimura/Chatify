@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	genresDescTemplate = "Information on music genres. Multiple elements can be entered. e.x) j-pop, k-pop, chill."
+	genresDescTemplate = "Information on music genres. Multiple elements can be entered. e.g. j-pop, k-pop, chill."
 )
 
 type FunctionParameters struct {
