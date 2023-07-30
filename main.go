@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/JunNishimura/Chatify/internal/hey"
+	"github.com/JunNishimura/Chatify/internal/cmd"
 	"github.com/spf13/cobra"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
@@ -79,7 +79,7 @@ func main() {
 		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
-	heyCommand := hey.NewCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
+	heyCommand := cmd.NewHeyCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
 
 	rootCmd.AddCommand(heyCommand)
 

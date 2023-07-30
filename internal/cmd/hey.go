@@ -1,7 +1,7 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 */
-package hey
+package cmd
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ import (
 	"github.com/zmb3/spotify/v2"
 )
 
-func NewCommand(ctx context.Context, client *spotify.Client, openaiApiKey string) *cobra.Command {
+func NewHeyCommand(ctx context.Context, client *spotify.Client, openaiApiKey string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "hey",
 		Short: "start conversation with chatify",
