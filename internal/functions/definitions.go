@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/JunNishimura/Chatify/internal/object"
 	"github.com/zmb3/spotify/v2"
 )
 
@@ -12,7 +13,7 @@ const (
 	RecommendCount = 5
 )
 
-func Recommend(ctx context.Context, client *spotify.Client, genres string) (string, error) {
+func Recommend(ctx context.Context, client *spotify.Client, genres string, danceability, valence float64, popularity int) (string, error) {
 	// genres length needs to be less than 5
 	if len(genres) > 5 {
 		genres = genres[:5]
@@ -23,7 +24,10 @@ func Recommend(ctx context.Context, client *spotify.Client, genres string) (stri
 		Genres: genresSlice,
 	}
 
-	trackAttrib := spotify.NewTrackAttributes()
+	trackAttrib := spotify.NewTrackAttributes().
+		TargetDanceability(danceability).
+		TargetValence(valence).
+		TargetPopularity(popularity)
 
 	recommendations, err := client.GetRecommendations(ctx, seeds, trackAttrib, spotify.Limit(RecommendCount))
 	if err != nil {
@@ -44,4 +48,22 @@ func Recommend(ctx context.Context, client *spotify.Client, genres string) (stri
 	}
 
 	return output, nil
+}
+
+func SetGenres(musicOrientationInfo *object.MusicOrientationInfo, genres string) {
+	cleanGenres := strings.TrimSpace(genres)
+	splitGenres := strings.Split(cleanGenres, ",")
+	musicOrientationInfo.Genres = splitGenres
+}
+
+func SetDanceability(musicOrientationInfo *object.MusicOrientationInfo, danceability float64) {
+	musicOrientationInfo.Danceability = danceability
+}
+
+func SetValence(musicOrientaionInfo *object.MusicOrientationInfo, valence float64) {
+	musicOrientaionInfo.Valence = valence
+}
+
+func SetPopularity(musicOrientaionInfo *object.MusicOrientationInfo, popularity int) {
+	musicOrientaionInfo.Popularity = popularity
 }
