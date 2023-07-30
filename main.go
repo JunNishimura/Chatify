@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/JunNishimura/Chatify/internal/cmd"
+	"github.com/JunNishimura/Chatify/cmd"
 	"github.com/spf13/cobra"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
