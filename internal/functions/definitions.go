@@ -53,17 +53,17 @@ func Recommend(ctx context.Context, client *spotify.Client, genres string, dance
 func SetGenres(musicOrientationInfo *object.MusicOrientationInfo, genres string) {
 	cleanGenres := strings.TrimSpace(genres)
 	splitGenres := strings.Split(cleanGenres, ",")
-	musicOrientationInfo.Genres = splitGenres
+	musicOrientationInfo.SetGenres(splitGenres)
 }
 
 func SetDanceability(musicOrientationInfo *object.MusicOrientationInfo, danceability float64) {
-	musicOrientationInfo.Danceability = danceability
+	musicOrientationInfo.SetDanceability(danceability)
 }
 
 func SetValence(musicOrientaionInfo *object.MusicOrientationInfo, valence float64) {
-	musicOrientaionInfo.Valence = valence
+	musicOrientaionInfo.SetValence(valence)
 }
 
 func SetPopularity(musicOrientaionInfo *object.MusicOrientationInfo, popularity int) {
-	musicOrientaionInfo.Popularity = popularity
+	musicOrientaionInfo.SetPopularity(popularity)
 }
