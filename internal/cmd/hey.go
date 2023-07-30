@@ -46,8 +46,6 @@ For example, "I'm depressed and I want to get better" to which the response migh
 "I guess the daceability is 0.8”.
 Also, limit the number of questions the bot asks the interlocutor in one conversation to one.
 
-Output <end> at the end of a sentence when recommending tracks.
-
 Please begin with the first question.`
 )
 
