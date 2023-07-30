@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/JunNishimura/Chatify/internal/functions"
-	"github.com/JunNishimura/Chatify/internal/object"
+	"github.com/JunNishimura/Chatify/functions"
+	"github.com/JunNishimura/Chatify/object"
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
 	"github.com/zmb3/spotify/v2"

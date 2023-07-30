@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/JunNishimura/Chatify/internal/object"
+	"github.com/JunNishimura/Chatify/object"
 	"github.com/zmb3/spotify/v2"
 )
 
