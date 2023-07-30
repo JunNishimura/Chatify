@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/JunNishimura/Chatify/internal/functions"
 	"github.com/JunNishimura/Chatify/internal/object"
@@ -48,6 +47,16 @@ Also, limit the number of questions the bot asks the interlocutor in one convers
 
 Please begin with the first question.`
 )
+
+type stringInfoResponse struct {
+	Value    string `json:"value"`
+	Subvalue string `json:"subvalue,omitempty"`
+}
+
+type numberInfoResponse struct {
+	Value    float64 `json:"value"`
+	Subvalue string  `json:"subvalue,omitempty"`
+}
 
 func NewHeyCommand(ctx context.Context, client *spotify.Client, openaiApiKey string) *cobra.Command {
 	return &cobra.Command{
@@ -94,17 +103,17 @@ func NewHeyCommand(ctx context.Context, client *spotify.Client, openaiApiKey str
 				if functionCall != nil {
 					switch functionCall.Name {
 					case functions.RecommendFunction:
-						args := make(map[string]any)
-						if err := json.Unmarshal([]byte(functionCall.Arguments), &args); err != nil {
+						resp := &struct {
+							Genres       string  `json:"genres"`
+							Danceability float64 `json:"danceability"`
+							Valence      float64 `json:"valence"`
+							Popularity   float64 `json:"popularity"`
+						}{}
+						if err := json.Unmarshal([]byte(functionCall.Arguments), resp); err != nil {
 							return fmt.Errorf("fail to unmarshal json: %v", err)
 						}
 
-						genres := args["genres"].(string)
-						danceability := args["danceability"].(float64)
-						valence := args["valence"].(float64)
-						popularity := args["popularity"].(int)
-
-						recommendations, err := functions.Recommend(ctx, client, genres, danceability, valence, popularity)
+						recommendations, err := functions.Recommend(ctx, client, resp.Genres, resp.Danceability, resp.Valence, int(resp.Popularity))
 						if err != nil {
 							return err
 						}
@@ -115,79 +124,67 @@ func NewHeyCommand(ctx context.Context, client *spotify.Client, openaiApiKey str
 							Content: recommendations,
 						})
 					case functions.SetGenresFunction:
-						args := make(map[string]string)
-						if err := json.Unmarshal([]byte(functionCall.Arguments), &args); err != nil {
+						resp := new(stringInfoResponse)
+						if err := json.Unmarshal([]byte(functionCall.Arguments), resp); err != nil {
 							return fmt.Errorf("fail to unmarshal json: %v", err)
 						}
-						genres := args["value"]
-						functions.SetGenres(musicOrientationInfo, genres)
+
+						functions.SetGenres(musicOrientationInfo, resp.Value)
 
 						messages = append(messages, openai.ChatCompletionMessage{
 							Name:    functionCall.Name,
 							Role:    openai.ChatMessageRoleFunction,
-							Content: genres,
+							Content: resp.Value,
 						})
 					case functions.SetDanceabitliyFunction:
-						args := make(map[string]any)
-						if err := json.Unmarshal([]byte(functionCall.Arguments), &args); err != nil {
+						resp := new(numberInfoResponse)
+						if err := json.Unmarshal([]byte(functionCall.Arguments), resp); err != nil {
 							return fmt.Errorf("fail to unmarshal json: %v", err)
 						}
 
-						danceability := args["value"].(float64)
-						description := args["subvalue"].(string)
-
-						functions.SetDanceability(musicOrientationInfo, danceability)
+						functions.SetDanceability(musicOrientationInfo, resp.Value)
 
 						messages = append(messages, openai.ChatCompletionMessage{
 							Name:    functionCall.Name,
 							Role:    openai.ChatMessageRoleFunction,
-							Content: description,
+							Content: resp.Subvalue,
 						})
 					case functions.SetValenceFunction:
-						args := make(map[string]any)
-						if err := json.Unmarshal([]byte(functionCall.Arguments), &args); err != nil {
+						resp := new(numberInfoResponse)
+						if err := json.Unmarshal([]byte(functionCall.Arguments), &resp); err != nil {
 							return fmt.Errorf("fail to unmarshal json: %v", err)
 						}
 
-						valence := args["value"].(float64)
-						description := args["subvalue"].(string)
-
-						functions.SetValence(musicOrientationInfo, valence)
+						functions.SetValence(musicOrientationInfo, resp.Value)
 
 						messages = append(messages, openai.ChatCompletionMessage{
 							Name:    functionCall.Name,
 							Role:    openai.ChatMessageRoleFunction,
-							Content: description,
+							Content: resp.Subvalue,
 						})
 					case functions.SetPopularityFunction:
-						args := make(map[string]any)
-						if err := json.Unmarshal([]byte(functionCall.Arguments), &args); err != nil {
+						resp := new(numberInfoResponse)
+						if err := json.Unmarshal([]byte(functionCall.Arguments), resp); err != nil {
 							return fmt.Errorf("fail to unmarshal json: %v", err)
 						}
 
-						popularity := args["value"].(int)
-						description := args["subvalue"].(string)
-
-						functions.SetPopularity(musicOrientationInfo, popularity)
+						functions.SetPopularity(musicOrientationInfo, int(resp.Value))
 
 						messages = append(messages, openai.ChatCompletionMessage{
 							Name:    functionCall.Name,
 							Role:    openai.ChatMessageRoleFunction,
-							Content: description,
+							Content: resp.Subvalue,
 						})
 					}
 				} else {
 					respMessage := resp.Choices[0].Message.Content
+					fmt.Println(respMessage)
 
-					// termination check
-					if strings.Contains(respMessage, "<end>") {
-						sp := strings.Split(respMessage, "<end>")
-						recommendMessage := strings.Join(sp, "")
-						fmt.Println(recommendMessage)
+					// finish conversation
+					if musicOrientationInfo.IsSet() {
 						break
 					}
 
-					fmt.Println(respMessage)
 					messages = append(messages, openai.ChatCompletionMessage{
 						Role:    openai.ChatMessageRoleAssistant,
 						Content: respMessage,
