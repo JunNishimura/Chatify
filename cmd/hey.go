@@ -12,9 +12,9 @@ import (
 
 	"github.com/JunNishimura/Chatify/functions"
 	"github.com/JunNishimura/Chatify/object"
+	"github.com/JunNishimura/spotify/v2"
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
-	"github.com/zmb3/spotify/v2"
 )
 
 const (
