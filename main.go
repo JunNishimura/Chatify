@@ -80,8 +80,12 @@ func main() {
 	}
 
 	heyCommand := cmd.NewHeyCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
+	greetingCommand := cmd.NewGreetingCommand()
 
-	rootCmd.AddCommand(heyCommand)
+	rootCmd.AddCommand(
+		heyCommand,
+		greetingCommand,
+	)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
