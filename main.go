@@ -38,10 +38,6 @@ func main() {
 
 	// check if token viper is set
 	if !isClientInfoSet() {
-		if err := askClientInfo(); err != nil {
-			log.Fatal(err)
-		}
-
 		authorize()
 	} else {
 		ctx := context.Background()
@@ -80,8 +76,12 @@ func main() {
 	}
 
 	heyCommand := cmd.NewHeyCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
+	greetingCommand := cmd.NewGreetingCommand()
 
-	rootCmd.AddCommand(heyCommand)
+	rootCmd.AddCommand(
+		heyCommand,
+		greetingCommand,
+	)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
