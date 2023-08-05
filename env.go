@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -9,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/JunNishimura/Chatify/ui"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
@@ -114,27 +115,9 @@ func getToken() *oauth2.Token {
 }
 
 func askClientInfo() error {
-	// get spotify ID
-	fmt.Println("Chatify requires <Spotify ID>, <Spotify Secret> and <OpenAI API key>")
-	fmt.Printf("\nPlease enter your <Spotify ID>\n")
-	fmt.Printf("> ")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	getSpotifyID := scanner.Text()
+	p := tea.NewProgram(ui.NewModel(), tea.WithAltScreen())
 
-	// get spotify secret
-	fmt.Println("Please enter your <Spotify Secret>")
-	fmt.Printf("> ")
-	scanner.Scan()
-	getSpotifySecret := scanner.Text()
-
-	// get OpenAI API key
-	fmt.Println("Please enter your <OpenAI API key>")
-	fmt.Printf("> ")
-	scanner.Scan()
-	getOpenAIApiKey := scanner.Text()
-
-	if err := setClientViper(getSpotifyID, getSpotifySecret, getOpenAIApiKey); err != nil {
+	if _, err := p.Run(); err != nil {
 		return err
 	}
 
