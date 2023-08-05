@@ -24,11 +24,6 @@ var (
 )
 
 func main() {
-	err := initEnv()
-	if err != ErrConfigNotFound && err != nil {
-		log.Fatal(err)
-	}
-
 	auth = spotifyauth.New(
 		spotifyauth.WithClientID(clientViper.GetString(SpotifyIDKeyName)),
 		spotifyauth.WithClientSecret(clientViper.GetString(SpotifySecretKeyName)),
