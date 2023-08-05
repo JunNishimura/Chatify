@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/JunNishimura/spotify/v2"
 	"github.com/google/uuid"
 	"github.com/pkg/browser"
-	"github.com/zmb3/spotify/v2"
 )
 
 const (

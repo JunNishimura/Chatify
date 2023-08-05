@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/JunNishimura/Chatify/object"
-	"github.com/zmb3/spotify/v2"
+	"github.com/JunNishimura/spotify/v2"
 )
 
 const (

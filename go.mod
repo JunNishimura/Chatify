@@ -4,12 +4,12 @@ go 1.19
 
 require (
 	github.com/charmbracelet/bubbles v0.16.1
+	github.com/JunNishimura/spotify/v2 v2.0.0-20230803143011-7b365448b4da
 	github.com/google/uuid v1.3.0
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/sashabaranov/go-openai v1.14.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	github.com/zmb3/spotify/v2 v2.3.2-0.20230424071627-89c95066f128
 	golang.org/x/oauth2 v0.10.0
 )
 
