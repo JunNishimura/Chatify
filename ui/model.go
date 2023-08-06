@@ -3,6 +3,7 @@ package ui
 import (
 	"strings"
 
+	"github.com/JunNishimura/Chatify/config"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
@@ -39,6 +40,7 @@ var (
 
 type Model struct {
 	index           int
+	cfg             *config.Config
 	textarea        textarea.Model
 	displayMessages []string
 	qaList          []*QA
