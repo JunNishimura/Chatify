@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/JunNishimura/Chatify/auth"
 	"github.com/JunNishimura/Chatify/config"
@@ -32,14 +33,23 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Println(m.textarea.Value())
 			return m, tea.Quit
 		case tea.KeyEnter:
+			if m.greetingDone {
+				return m, tea.Quit
+			} else if m.setConfigDone {
+				return m, m.Authorize
+			}
+
 			m.qaList[m.index].answer = m.textarea.Value()
 
 			m.index++
 			if m.index == len(m.qaList) {
+				m.qaDone = true
 				m.displayMessages = append(m.displayMessages, m.senderStyle.Render("Chatify: ")+"Thank you so much!")
 				m.viewport.SetContent(strings.Join(m.displayMessages, "\n"))
 
-				return m, m.Authorize
+				return m, tea.Batch(
+					m.setClientConfig(m.confKeyList[m.writeIndex], qaListTemplate[m.writeIndex].answer),
+				)
 			}
 
 			m.displayMessages = append(
@@ -53,12 +63,19 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.textarea.Reset()
 			m.textarea.Placeholder = m.qaList[m.index].placeholder
 		}
+	case writeClientConfigMsg:
+		m.writeIndex++
+		if m.writeIndex < len(m.confKeyList) {
+			return m, m.setClientConfig(m.confKeyList[m.writeIndex], m.qaList[m.writeIndex].answer)
+		}
+		m.setConfigDone = true
 	case loadConfigMsg:
 		m.cfg = msg.cfg
 		return m, textarea.Blink
 	case spotifyUserMsg:
-		fmt.Println("logged in as: ", msg.user.DisplayName)
-		return m, tea.Quit
+		m.user = msg.user
+		m.greetingDone = true
+		return m, tea.Batch(tiCmd, vpCmd)
 	case errMsg:
 		m.err = msg.err
 		return m, tea.Quit
@@ -78,6 +95,18 @@ func (m *Model) loadConfig() tea.Msg {
 	}
 
 	return loadConfigMsg{cfg: cfg}
+}
+
+type writeClientConfigMsg string
+
+func (m *Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
+	start := time.Now()
+	m.cfg.Set(key, value)
+	elapsed := time.Since(start)
+
+	return tea.Tick(elapsed, func(t time.Time) tea.Msg {
+		return writeClientConfigMsg(key)
+	})
 }
 
 func (m *Model) Authorize() tea.Msg {
