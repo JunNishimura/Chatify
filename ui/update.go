@@ -1,11 +1,20 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
+	"github.com/JunNishimura/Chatify/auth"
+	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/spotify/v2"
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+type loadConfigMsg struct{ cfg *config.Config }
+type spotifyUserMsg struct{ user *spotify.PrivateUser }
+type errMsg struct{ err error }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
@@ -30,7 +39,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.displayMessages = append(m.displayMessages, m.senderStyle.Render("Chatify: ")+"Thank you so much!")
 				m.viewport.SetContent(strings.Join(m.displayMessages, "\n"))
 
-				return m, tea.Quit
+				return m, m.Authorize
 			}
 
 			m.displayMessages = append(
@@ -44,10 +53,44 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.textarea.Reset()
 			m.textarea.Placeholder = m.qaList[m.index].placeholder
 		}
-	case error:
-		m.err = msg
-		return m, nil
+	case loadConfigMsg:
+		m.cfg = msg.cfg
+		return m, textarea.Blink
+	case spotifyUserMsg:
+		fmt.Println("logged in as: ", msg.user.DisplayName)
+		return m, tea.Quit
+	case errMsg:
+		m.err = msg.err
+		return m, tea.Quit
 	}
 
 	return m, tea.Batch(tiCmd, vpCmd)
+}
+
+func (m *Model) loadConfig() tea.Msg {
+	cfg, err := config.New()
+	if err != nil {
+		return errMsg{err: err}
+	}
+
+	if err := cfg.Load(); err != nil {
+		return errMsg{err: err}
+	}
+
+	return loadConfigMsg{cfg: cfg}
+}
+
+func (m *Model) Authorize() tea.Msg {
+	authClient := auth.New(m.cfg)
+
+	authClient.Authorize()
+
+	spotifyClient := <-authClient.SpotifyChannel
+
+	user, err := spotifyClient.CurrentUser(context.Background())
+	if err != nil {
+		return errMsg{err: err}
+	}
+
+	return spotifyUserMsg{user: user}
 }
