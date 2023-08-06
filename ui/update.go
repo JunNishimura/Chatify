@@ -101,7 +101,11 @@ type writeClientConfigMsg string
 
 func (m *Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
 	start := time.Now()
-	m.cfg.Set(key, value)
+	if err := m.cfg.Set(key, value); err != nil {
+		return func() tea.Msg {
+			return errMsg{err: err}
+		}
+	}
 	elapsed := time.Since(start)
 
 	return tea.Tick(elapsed, func(t time.Time) tea.Msg {
