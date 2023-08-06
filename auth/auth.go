@@ -11,6 +11,7 @@ import (
 	spotifyauth "github.com/JunNishimura/spotify/v2/auth"
 	"github.com/google/uuid"
 	"github.com/pkg/browser"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -68,8 +69,8 @@ func (a *Client) completeAuth(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("state mismatch: got = %s, expected = %s\n", getState, a.state)
 	}
 
-	if err := a.cfg.SetToken(token); err != nil {
-		log.Fatalf("fail to set token: %v", err)
+	if err := a.setToken(token); err != nil {
+		log.Fatal(err)
 	}
 
 	a.SpotifyChannel <- spotify.New(a.auth.Client(r.Context(), token))
@@ -79,4 +80,18 @@ func (a *Client) completeAuth(w http.ResponseWriter, r *http.Request) {
 			log.Fatalf("fail to shutdown server: %v\n", err)
 		}
 	}()
+}
+
+func (a *Client) setToken(token *oauth2.Token) error {
+	if err := a.cfg.Set(config.AccessTokenKey, token.AccessToken); err != nil {
+		return fmt.Errorf("fail to set access token: %v", err)
+	}
+	if err := a.cfg.Set(config.RefreshTokenKey, token.RefreshToken); err != nil {
+		return fmt.Errorf("fail to set refresh token: %v", err)
+	}
+	if err := a.cfg.Set(config.ExpirationKey, token.Expiry.Unix()); err != nil {
+		return fmt.Errorf("fail to set expiration: %v", err)
+	}
+
+	return nil
 }
