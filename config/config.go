@@ -31,8 +31,15 @@ const (
 	ExpirationKey    ConfKey = "expiration"
 )
 
-func Load() (*Config, error) {
-	conf := new(Config)
+func newConfig() *Config {
+	return &Config{
+		tokenViper:  viper.New(),
+		clientViper: viper.New(),
+	}
+}
+
+func New() (*Config, error) {
+	conf := newConfig()
 
 	configPath, err := getConfigPath()
 	if err != nil {
@@ -48,13 +55,6 @@ func Load() (*Config, error) {
 	}
 	if err := setupViper(conf.clientViper, configPath, "client", "yaml"); err != nil {
 		return nil, err
-	}
-
-	if err := conf.tokenViper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("fail to read token viper: %v", err)
-	}
-	if err := conf.clientViper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("fail to read client viper: %v", err)
 	}
 
 	return conf, nil
@@ -92,6 +92,17 @@ func setupViper(v *viper.Viper, configPath, configName, configType string) error
 				err,
 			)
 		}
+	}
+
+	return nil
+}
+
+func (c *Config) Load() error {
+	if err := c.tokenViper.ReadInConfig(); err != nil {
+		return fmt.Errorf("fail to read token viper: %v", err)
+	}
+	if err := c.clientViper.ReadInConfig(); err != nil {
+		return fmt.Errorf("fail to read client viper: %v", err)
 	}
 
 	return nil
@@ -142,4 +153,8 @@ func (c *Config) IsClientValid() bool {
 	openAIApiKey := c.clientViper.GetString(string(OpenAIAPIKey))
 
 	return spotifyID != "" && spotifySecret != "" && openAIApiKey != ""
+}
+
+func (c *Config) GetClientValue(key ConfKey) string {
+	return c.clientViper.GetString(string(key))
 }
