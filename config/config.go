@@ -31,6 +31,14 @@ const (
 	ExpirationKey    ConfKey = "expiration"
 )
 
+func (k ConfKey) isTokenKey() bool {
+	return k == AccessTokenKey || k == RefreshTokenKey || k == ExpirationKey
+}
+
+func (k ConfKey) isClientKey() bool {
+	return k == SpotifyIDKey || k == SpotifySecretKey || k == OpenAIAPIKey
+}
+
 func newConfig() *Config {
 	return &Config{
 		tokenViper:  viper.New(),
@@ -108,12 +116,30 @@ func (c *Config) Load() error {
 	return nil
 }
 
-func (c *Config) SetToken(token *oauth2.Token) error {
-	c.tokenViper.Set(string(AccessTokenKey), token.AccessToken)
-	c.tokenViper.Set(string(RefreshTokenKey), token.RefreshToken)
-	c.tokenViper.Set(string(ExpirationKey), token.Expiry.Unix())
+func (c *Config) Set(key ConfKey, value any) error {
+	if key.isTokenKey() {
+		return c.setToken(key, value)
+	} else if key.isClientKey() {
+		return c.setClient(key, value)
+	}
+
+	return fmt.Errorf("fail to set config. invalid key: %s", key)
+}
+
+func (c *Config) setToken(key ConfKey, value any) error {
+	c.tokenViper.Set(string(key), value)
 
 	if err := c.tokenViper.WriteConfig(); err != nil {
+		return fmt.Errorf("fail to write token config: %v", err)
+	}
+
+	return nil
+}
+
+func (c *Config) setClient(key ConfKey, value any) error {
+	c.clientViper.Set(string(key), value)
+
+	if err := c.clientViper.WriteConfig(); err != nil {
 		return fmt.Errorf("fail to write token config: %v", err)
 	}
 
@@ -133,18 +159,6 @@ func (c *Config) GetToken() *oauth2.Token {
 		RefreshToken: refreshToken,
 		Expiry:       expiry,
 	}
-}
-
-func (c *Config) SetClient(spotifyID, spotifySecret, openAIApiKey string) error {
-	c.clientViper.Set(string(spotifyID), spotifyID)
-	c.clientViper.Set(string(spotifySecret), spotifySecret)
-	c.clientViper.Set(string(openAIApiKey), openAIApiKey)
-
-	if err := c.clientViper.WriteConfig(); err != nil {
-		return fmt.Errorf("fail to write client config: %v", err)
-	}
-
-	return nil
 }
 
 func (c *Config) IsClientValid() bool {

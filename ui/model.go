@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
@@ -40,12 +41,18 @@ var (
 
 type Model struct {
 	index           int
+	writeIndex      int
 	cfg             *config.Config
 	textarea        textarea.Model
+	confKeyList     []config.ConfKey
 	displayMessages []string
 	qaList          []*QA
 	viewport        viewport.Model
+	user            *spotify.PrivateUser
 	senderStyle     lipgloss.Style
+	qaDone          bool
+	setConfigDone   bool
+	greetingDone    bool
 	err             error
 }
 
@@ -64,6 +71,8 @@ func NewModel() *Model {
 
 	return &Model{
 		index:           0,
+		writeIndex:      0,
+		confKeyList:     []config.ConfKey{config.SpotifyIDKey, config.SpotifySecretKey, config.OpenAIAPIKey},
 		displayMessages: greetings,
 		qaList:          qaListTemplate,
 		textarea:        newTextArea(),
