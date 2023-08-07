@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/JunNishimura/spotify/v2 v2.0.0-20230803143011-7b365448b4da
 	github.com/charmbracelet/bubbles v0.16.1
-	github.com/charmbracelet/bubbletea v0.24.1
+	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/google/uuid v1.3.0
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
