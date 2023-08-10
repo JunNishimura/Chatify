@@ -1,6 +1,7 @@
 package greeting
 
 import (
+	"context"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/config"
@@ -40,6 +41,7 @@ var (
 )
 
 type Model struct {
+	ctx             context.Context
 	index           int
 	writeIndex      int
 	cfg             *config.Config
@@ -70,6 +72,7 @@ func NewModel() *Model {
 	}
 
 	return &Model{
+		ctx:             context.Background(),
 		index:           0,
 		writeIndex:      0,
 		confKeyList:     []config.ConfKey{config.SpotifyIDKey, config.SpotifySecretKey, config.OpenAIAPIKey},

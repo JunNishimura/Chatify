@@ -1,7 +1,6 @@
 package greeting
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -120,7 +119,7 @@ func (m *Model) Authorize() tea.Msg {
 
 	spotifyClient := <-authClient.SpotifyChannel
 
-	user, err := spotifyClient.CurrentUser(context.Background())
+	user, err := spotifyClient.CurrentUser(m.ctx)
 	if err != nil {
 		return errMsg{err: err}
 	}
