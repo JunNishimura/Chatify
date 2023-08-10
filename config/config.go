@@ -116,6 +116,20 @@ func (c *Config) Load() error {
 	return nil
 }
 
+func (c *Config) SetToken(token *oauth2.Token) error {
+	if err := c.Set(AccessTokenKey, token.AccessToken); err != nil {
+		return fmt.Errorf("fail to set access token: %v", err)
+	}
+	if err := c.Set(RefreshTokenKey, token.RefreshToken); err != nil {
+		return fmt.Errorf("fail to set refresh token: %v", err)
+	}
+	if err := c.Set(ExpirationKey, token.Expiry.Unix()); err != nil {
+		return fmt.Errorf("fail to set expiration: %v", err)
+	}
+
+	return nil
+}
+
 func (c *Config) Set(key ConfKey, value any) error {
 	if key.isTokenKey() {
 		return c.setToken(key, value)
