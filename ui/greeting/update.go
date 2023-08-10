@@ -113,7 +113,7 @@ func (m *Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
 }
 
 func (m *Model) Authorize() tea.Msg {
-	authClient := auth.New(m.cfg)
+	authClient := auth.NewClient(m.cfg)
 
 	authClient.Authorize()
 

@@ -27,21 +27,23 @@ type Client struct {
 	state          string
 }
 
-func New(cfg *config.Config) *Client {
-	auth := spotifyauth.New(
+func NewClient(cfg *config.Config) *Client {
+	return &Client{
+		SpotifyChannel: make(chan *spotify.Client, 1),
+		cfg:            cfg,
+		auth:           NewAuth(cfg),
+		server:         &http.Server{Addr: fmt.Sprintf(":%s", authPort)},
+		state:          uuid.New().String(),
+	}
+}
+
+func NewAuth(cfg *config.Config) *spotifyauth.Authenticator {
+	return spotifyauth.New(
 		spotifyauth.WithClientID(cfg.GetClientValue(config.SpotifyIDKey)),
 		spotifyauth.WithClientSecret(cfg.GetClientValue(config.SpotifySecretKey)),
 		spotifyauth.WithRedirectURL(redirectURI),
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
 	)
-
-	return &Client{
-		SpotifyChannel: make(chan *spotify.Client, 1),
-		cfg:            cfg,
-		auth:           auth,
-		server:         &http.Server{Addr: fmt.Sprintf(":%s", authPort)},
-		state:          uuid.New().String(),
-	}
 }
 
 func (a *Client) Authorize() {
