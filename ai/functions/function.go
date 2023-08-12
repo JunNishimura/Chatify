@@ -5,28 +5,46 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/JunNishimura/Chatify/ai/model"
+	"github.com/JunNishimura/Chatify/util"
 	"github.com/JunNishimura/spotify/v2"
 )
+
+func SetGenres(genresInfo *util.Info[[]string], value []string) {
+	util.SetInfo(genresInfo, value)
+}
+
+func SetDanceability(danceabilityInfo *util.Info[float64], value float64) {
+	util.SetInfo(danceabilityInfo, value)
+}
+
+func SetValence(valence *util.Info[float64], value float64) {
+	util.SetInfo(valence, value)
+}
+
+func SetPopularity(popularity *util.Info[int], value int) {
+	util.SetInfo(popularity, value)
+}
 
 const (
 	RecommendCount = 5
 )
 
-func Recommend(ctx context.Context, client *spotify.Client, genres string, danceability, valence float64, popularity int) (string, error) {
+func Recommend(ctx context.Context, client *spotify.Client, musicOrientation *model.MusicOrientation) (string, error) {
 	// genres length needs to be less than 5
+	genres := musicOrientation.Genres.Value
 	if len(genres) > 5 {
 		genres = genres[:5]
 	}
-	genresSlice := strings.Split(genres, ",")
 
 	seeds := spotify.Seeds{
-		Genres: genresSlice,
+		Genres: genres,
 	}
 
 	trackAttrib := spotify.NewTrackAttributes().
-		TargetDanceability(danceability).
-		TargetValence(valence).
-		TargetPopularity(popularity)
+		TargetDanceability(musicOrientation.Danceability.Value).
+		TargetValence(musicOrientation.Valence.Value).
+		TargetPopularity(musicOrientation.Popularity.Value)
 
 	recommendations, err := client.GetRecommendations(ctx, seeds, trackAttrib, spotify.Limit(RecommendCount))
 	if err != nil {
