@@ -18,12 +18,12 @@ func main() {
 		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
-	// heyCommand := cmd.NewHeyCommand(context.Background(), client, clientViper.GetString(OpenAIApiKeyName))
 	greetingCommand := cmd.NewGreetingCommand()
+	heyCommand := cmd.NewHeyCommand()
 
 	rootCmd.AddCommand(
-		// heyCommand,
 		greetingCommand,
+		heyCommand,
 	)
 
 	if err := rootCmd.Execute(); err != nil {
