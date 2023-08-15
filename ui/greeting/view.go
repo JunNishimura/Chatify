@@ -11,7 +11,7 @@ var (
 	doneStyle = lipgloss.NewStyle().Margin(1, 2)
 )
 
-func (m *Model) View() string {
+func (m Model) View() string {
 	view := m.viewport.View()
 	text := m.textarea.View()
 
