@@ -1,7 +1,6 @@
 package greeting
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -17,7 +16,7 @@ type loadConfigMsg struct{ cfg *config.Config }
 type spotifyUserMsg struct{ user *spotify.PrivateUser }
 type errMsg struct{ err error }
 
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		tiCmd tea.Cmd
 		vpCmd tea.Cmd
@@ -84,7 +83,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(tiCmd, vpCmd)
 }
 
-func (m *Model) loadConfig() tea.Msg {
+func (m Model) loadConfig() tea.Msg {
 	cfg, err := config.New()
 	if err != nil {
 		return errMsg{err: err}
@@ -99,7 +98,7 @@ func (m *Model) loadConfig() tea.Msg {
 
 type writeClientConfigMsg string
 
-func (m *Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
+func (m Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
 	start := time.Now()
 	if err := m.cfg.Set(key, value); err != nil {
 		return func() tea.Msg {
@@ -113,14 +112,14 @@ func (m *Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
 	})
 }
 
-func (m *Model) Authorize() tea.Msg {
-	authClient := auth.New(m.cfg)
+func (m Model) Authorize() tea.Msg {
+	authClient := auth.NewClient(m.cfg)
 
 	authClient.Authorize()
 
 	spotifyClient := <-authClient.SpotifyChannel
 
-	user, err := spotifyClient.CurrentUser(context.Background())
+	user, err := spotifyClient.CurrentUser(m.ctx)
 	if err != nil {
 		return errMsg{err: err}
 	}

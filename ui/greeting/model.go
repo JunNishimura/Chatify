@@ -1,6 +1,7 @@
 package greeting
 
 import (
+	"context"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/config"
@@ -40,6 +41,7 @@ var (
 )
 
 type Model struct {
+	ctx             context.Context
 	index           int
 	writeIndex      int
 	cfg             *config.Config
@@ -62,14 +64,15 @@ type QA struct {
 	placeholder string
 }
 
-func NewModel() *Model {
+func NewModel() Model {
 	greetings := []string{
 		senderStyle.Render("Chatify: ") + "Hi there, I'm Chatify!",
 		"         I want to know three things.",
 		"         " + qaListTemplate[0].question,
 	}
 
-	return &Model{
+	return Model{
+		ctx:             context.Background(),
 		index:           0,
 		writeIndex:      0,
 		confKeyList:     []config.ConfKey{config.SpotifyIDKey, config.SpotifySecretKey, config.OpenAIAPIKey},
