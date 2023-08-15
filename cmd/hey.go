@@ -9,16 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type stringInfoResponse struct {
-	Value    string `json:"value"`
-	Subvalue string `json:"subvalue,omitempty"`
-}
-
-type numberInfoResponse struct {
-	Value    float64 `json:"value"`
-	Subvalue string  `json:"subvalue,omitempty"`
-}
-
 func NewHeyCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "hey",
