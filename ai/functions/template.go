@@ -134,10 +134,3 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 		},
 	}
 }
-
-func GetRecommendFunctionDefinition() openai.FunctionDefinition {
-	return openai.FunctionDefinition{
-		Name:        RecommendFunctionName,
-		Description: "Recommend the music tracks based on information about what kind of music the user wants to listen",
-	}
-}
