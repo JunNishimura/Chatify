@@ -1,4 +1,4 @@
-package util
+package utils
 
 type Info[T any] struct {
 	Value      T

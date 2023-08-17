@@ -1,21 +1,21 @@
 package functions
 
 import (
-	"github.com/JunNishimura/Chatify/util"
+	"github.com/JunNishimura/Chatify/utils"
 )
 
-func SetGenres(genresInfo *util.Info[[]string], value []string) {
-	util.SetInfo(genresInfo, value)
+func SetGenres(genresInfo *utils.Info[[]string], value []string) {
+	utils.SetInfo(genresInfo, value)
 }
 
-func SetDanceability(danceabilityInfo *util.Info[float64], value float64) {
-	util.SetInfo(danceabilityInfo, value)
+func SetDanceability(danceabilityInfo *utils.Info[float64], value float64) {
+	utils.SetInfo(danceabilityInfo, value)
 }
 
-func SetValence(valence *util.Info[float64], value float64) {
-	util.SetInfo(valence, value)
+func SetValence(valence *utils.Info[float64], value float64) {
+	utils.SetInfo(valence, value)
 }
 
-func SetPopularity(popularity *util.Info[int], value int) {
-	util.SetInfo(popularity, value)
+func SetPopularity(popularity *utils.Info[int], value int) {
+	utils.SetInfo(popularity, value)
 }

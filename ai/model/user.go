@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/JunNishimura/Chatify/util"
+	"github.com/JunNishimura/Chatify/utils"
 )
 
 type User struct {
@@ -29,27 +29,27 @@ const (
 )
 
 type MusicOrientation struct {
-	Genres       util.Info[[]string]
-	Danceability util.Info[float64]
-	Valence      util.Info[float64]
-	Popularity   util.Info[int]
+	Genres       utils.Info[[]string]
+	Danceability utils.Info[float64]
+	Valence      utils.Info[float64]
+	Popularity   utils.Info[int]
 }
 
 func newMusicOrientation() *MusicOrientation {
 	return &MusicOrientation{
-		Genres: util.Info[[]string]{
+		Genres: utils.Info[[]string]{
 			Value:      []string{},
 			HasChanged: false,
 		},
-		Danceability: util.Info[float64]{
+		Danceability: utils.Info[float64]{
 			Value:      0.0,
 			HasChanged: false,
 		},
-		Valence: util.Info[float64]{
+		Valence: utils.Info[float64]{
 			Value:      0.0,
 			HasChanged: false,
 		},
-		Popularity: util.Info[int]{
+		Popularity: utils.Info[int]{
 			Value:      0,
 			HasChanged: false,
 		},
