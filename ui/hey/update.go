@@ -2,13 +2,11 @@ package hey
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
 	"github.com/JunNishimura/Chatify/ai/model"
+	"github.com/JunNishimura/Chatify/ai/prompt"
 	"github.com/JunNishimura/Chatify/auth"
 	"github.com/JunNishimura/Chatify/config"
 	"github.com/JunNishimura/spotify/v2"
@@ -64,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.chatCompMessages = []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: msg.prompt,
+				Content: prompt.Base,
 			},
 		}
 
@@ -157,40 +155,16 @@ func (m Model) setupSpotify() tea.Msg {
 
 type openaiMsg struct {
 	client    *openai.Client
-	prompt    string
 	functions []openai.FunctionDefinition
 }
 
 func (m Model) setupOpenAI() tea.Msg {
 	openaiAPIKey := m.cfg.GetClientValue(config.OpenAIAPIKey)
 
-	prompt, err := readPrompt()
-	if err != nil {
-		return errMsg{err: err}
-	}
-
 	return openaiMsg{
 		client:    openai.NewClient(openaiAPIKey),
-		prompt:    prompt,
 		functions: functions.GetFunctionDefinitions(m.availableGenres),
 	}
-}
-
-const promptPath = "ai/prompt/system.txt"
-
-func readPrompt() (string, error) {
-	curPath, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("fail to get current path: %v", err)
-	}
-
-	promptPath := filepath.Join(curPath, promptPath)
-	promptB, err := os.ReadFile(promptPath)
-	if err != nil {
-		return "", fmt.Errorf("fail to read %s: %v", promptPath, err)
-	}
-
-	return string(promptB), nil
 }
 
 type responseMsg struct{ resp openai.ChatCompletionResponse }
