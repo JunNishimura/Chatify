@@ -6,6 +6,7 @@ import (
 
 	"github.com/JunNishimura/Chatify/ai/model"
 	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/Chatify/utils"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -42,8 +43,7 @@ func (i Item) FilterValue() string { return i.album }
 
 type Model struct {
 	ctx              context.Context
-	width            int
-	height           int
+	window           *utils.Window
 	state            sessionState
 	textInput        textinput.Model
 	list             list.Model
@@ -61,6 +61,7 @@ type Model struct {
 func NewModel() Model {
 	return Model{
 		ctx:       context.Background(),
+		window:    utils.NewWindow(),
 		textInput: newTextInput(),
 		list:      list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
 	}
