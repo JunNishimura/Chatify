@@ -9,17 +9,26 @@ import (
 
 func (m Model) View() string {
 	var s string
+
+	// window size adjustmen
+	wholeWidth := m.window.Width - 4
+	halfWidth := wholeWidth / 2
+	height := m.window.Height - 10
 	if m.state == chatView {
-		s += lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			style.Focused.Render(m.chatView()),
-			style.Normal.Render(m.recommendationView()),
+		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
+			lipgloss.JoinHorizontal(
+				lipgloss.Center,
+				style.GetFocused(halfWidth, height).Render(m.chatView()),
+				style.GetNormal(halfWidth, height).Render(m.recommendationView()),
+			),
 		)
 	} else {
-		s += lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			style.Normal.Render(m.chatView()),
-			style.Focused.Render(m.recommendationView()),
+		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
+			lipgloss.JoinHorizontal(
+				lipgloss.Center,
+				style.GetNormal(halfWidth, height).Render(m.chatView()),
+				style.GetFocused(halfWidth, height).Render(m.recommendationView()),
+			),
 		)
 	}
 	return s
