@@ -1,8 +1,6 @@
 package hey
 
 import (
-	"strings"
-
 	"github.com/JunNishimura/Chatify/ui/hey/style"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -44,8 +42,14 @@ func (m Model) getViewHeight() int {
 
 func (m Model) chatView() string {
 	var s string
-	s += strings.Join(m.conversation, "\n\n")
-	s += "\n\n" + m.textInput.View()
+	for _, message := range m.conversation {
+		if message.speaker == Bot {
+			s += style.BotChat(m.getViewWidth()).Render(message.content) + "\n\n"
+		} else if message.speaker == User {
+			s += style.UserChat().Render(message.content) + "\n\n"
+		}
+	}
+	s += style.TextInput().Render(m.textInput.View())
 	return s
 }
 

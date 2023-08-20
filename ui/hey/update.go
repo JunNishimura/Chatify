@@ -2,6 +2,7 @@ package hey
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
@@ -42,7 +43,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					Role:    openai.ChatMessageRoleUser,
 					Content: answer,
 				})
-				m.conversation = append(m.conversation, answer)
+				m.conversation = append(m.conversation, &Message{content: fmt.Sprintf("> %s", answer), speaker: User})
 
 				m.textInput.Reset()
 
@@ -85,7 +86,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				Role:    openai.ChatMessageRoleAssistant,
 				Content: content,
 			})
-			m.conversation = append(m.conversation, content)
+			m.conversation = append(m.conversation, &Message{content: content, speaker: Bot})
 		}
 	case chatCompMsg:
 		m.chatCompMessages = append(m.chatCompMessages, msg.msg)
