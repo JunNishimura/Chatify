@@ -13,7 +13,7 @@ func (m Model) View() string {
 	// window size adjustmen
 	wholeWidth := m.window.Width - 4
 	halfWidth := wholeWidth / 2
-	height := m.window.Height - 10
+	height := m.window.Height - 5
 	if m.state == chatView {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(
@@ -42,5 +42,5 @@ func (m Model) chatView() string {
 }
 
 func (m Model) recommendationView() string {
-	return style.List.Render(m.list.View())
+	return m.list.View()
 }
