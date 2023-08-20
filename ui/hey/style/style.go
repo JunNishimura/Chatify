@@ -3,9 +3,9 @@ package style
 import "github.com/charmbracelet/lipgloss"
 
 const (
-	White        = "#ffffff"
-	FocusedColor = "#1DB954"
-	BgColor      = "#191414"
+	White          = "#ffffff"
+	HighlightColor = "#1DB954"
+	BgColor        = "#191414"
 )
 
 func ChatNomal(width, height int) lipgloss.Style {
@@ -20,7 +20,7 @@ func ChatFocused(width, height int) lipgloss.Style {
 		Width(width).
 		Height(height).
 		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color(FocusedColor))
+		BorderForeground(lipgloss.Color(HighlightColor))
 }
 
 func RecommendationNormal(width, height int) lipgloss.Style {
@@ -36,6 +36,23 @@ func RecommendationFocused(width, height int) lipgloss.Style {
 		Width(width).
 		Height(height).
 		BorderStyle(lipgloss.ThickBorder()).
-		BorderForeground(lipgloss.Color(FocusedColor)).
+		BorderForeground(lipgloss.Color(HighlightColor)).
 		Background(lipgloss.AdaptiveColor{Dark: BgColor, Light: BgColor})
+}
+
+func BotChat(width int) lipgloss.Style {
+	return lipgloss.NewStyle().
+		AlignHorizontal(lipgloss.Right).
+		Width(width)
+}
+
+func UserChat() lipgloss.Style {
+	return lipgloss.NewStyle().
+		AlignHorizontal(lipgloss.Left).
+		Foreground(lipgloss.Color(HighlightColor))
+}
+
+func TextInput() lipgloss.Style {
+	return lipgloss.NewStyle().
+		AlignHorizontal(lipgloss.Left)
 }
