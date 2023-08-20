@@ -11,27 +11,35 @@ func (m Model) View() string {
 	var s string
 
 	// window size adjustmen
-	wholeWidth := m.window.Width - 4
-	halfWidth := wholeWidth / 2
-	height := m.window.Height - 5
 	if m.state == chatView {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
-				style.GetFocused(halfWidth, height).Render(m.chatView()),
-				style.GetNormal(halfWidth, height).Render(m.recommendationView()),
+				style.GetFocused(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
+				style.GetNormal(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
 			),
 		)
 	} else {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
-				style.GetNormal(halfWidth, height).Render(m.chatView()),
-				style.GetFocused(halfWidth, height).Render(m.recommendationView()),
+				style.GetNormal(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
+				style.GetFocused(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
 			),
 		)
 	}
 	return s
+}
+
+func (m Model) getViewWidth() int {
+	wholeWidth := m.window.Width - 4
+	halfWidth := wholeWidth / 2
+	return halfWidth
+}
+
+func (m Model) getViewHeight() int {
+	height := m.window.Height - 5
+	return height
 }
 
 func (m Model) chatView() string {

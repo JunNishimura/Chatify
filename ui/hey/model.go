@@ -64,8 +64,16 @@ func NewModel() Model {
 		ctx:       context.Background(),
 		window:    utils.NewWindow(),
 		textInput: newTextInput(),
-		list:      list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
+		list:      newListModel([]list.Item{}, 0, 0),
 	}
+}
+
+const ListTitle = "Chatify's recommendation"
+
+func newListModel(items []list.Item, width, height int) list.Model {
+	newList := list.New(items, list.NewDefaultDelegate(), width, height)
+	newList.Title = ListTitle
+	return newList
 }
 
 func newTextInput() textinput.Model {
