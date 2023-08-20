@@ -51,6 +51,7 @@ type Model struct {
 	qaList          []*QA
 	viewport        viewport.Model
 	user            *spotify.PrivateUser
+	spotifyClient   *spotify.Client
 	senderStyle     lipgloss.Style
 	qaDone          bool
 	setConfigDone   bool

@@ -1,6 +1,7 @@
 package greeting
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,8 +13,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type loadConfigMsg struct{ cfg *config.Config }
-type spotifyUserMsg struct{ user *spotify.PrivateUser }
 type errMsg struct{ err error }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -73,8 +72,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, textarea.Blink
 	case spotifyUserMsg:
 		m.user = msg.user
+		m.spotifyClient = msg.client
+		return m, m.getDevice
+	case deviceMsg:
 		m.greetingDone = true
-		return m, tea.Batch(tiCmd, vpCmd)
 	case errMsg:
 		m.err = msg.err
 		return m, tea.Quit
@@ -82,6 +83,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	return m, tea.Batch(tiCmd, vpCmd)
 }
+
+type loadConfigMsg struct{ cfg *config.Config }
 
 func (m Model) loadConfig() tea.Msg {
 	cfg, err := config.New()
@@ -112,6 +115,11 @@ func (m Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
 	})
 }
 
+type spotifyUserMsg struct {
+	user   *spotify.PrivateUser
+	client *spotify.Client
+}
+
 func (m Model) Authorize() tea.Msg {
 	authClient := auth.NewClient(m.cfg)
 
@@ -124,5 +132,29 @@ func (m Model) Authorize() tea.Msg {
 		return errMsg{err: err}
 	}
 
-	return spotifyUserMsg{user: user}
+	return spotifyUserMsg{
+		user:   user,
+		client: spotifyClient,
+	}
+}
+
+type deviceMsg struct{ deviceID string }
+
+func (m Model) getDevice() tea.Msg {
+	devices, err := m.spotifyClient.PlayerDevices(m.ctx)
+	if err != nil {
+		return errMsg{err}
+	}
+	if len(devices) == 0 {
+		return errMsg{
+			err: errors.New("fail to get device"),
+		}
+	}
+
+	deviceID := devices[0].ID.String()
+	if err := m.cfg.Set(config.DeviceID, deviceID); err != nil {
+		return errMsg{err}
+	}
+
+	return deviceMsg{deviceID}
 }
