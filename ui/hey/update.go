@@ -93,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(m.generate, m.recommend)
 	case recommendMsg:
 		m.recommendItems = msg.items
-		m.list = list.New(m.recommendItems, list.NewDefaultDelegate(), 100, 40)
+		m.list = newListModel(m.recommendItems, m.getViewWidth(), m.getViewHeight())
 	}
 
 	m.textInput, inputCmd = m.textInput.Update(msg)
@@ -291,7 +291,7 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 	return nil
 }
 
-const RecommendCount = 5
+const RecommendCount = 20
 
 type recommendMsg struct{ items []list.Item }
 
