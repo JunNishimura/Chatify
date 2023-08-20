@@ -6,10 +6,12 @@ import (
 
 	"github.com/JunNishimura/Chatify/ai/model"
 	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/Chatify/ui/hey/style"
 	"github.com/JunNishimura/Chatify/utils"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -37,7 +39,11 @@ type Item struct {
 	uri     spotify.URI
 }
 
-func (i Item) Title() string       { return i.album }
+func (i Item) Title() string {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color(style.White)).
+		Render(i.album)
+}
 func (i Item) Description() string { return strings.Join(i.artists, ", ") }
 func (i Item) FilterValue() string { return i.album }
 
@@ -73,6 +79,7 @@ const ListTitle = "Chatify's recommendation"
 func newListModel(items []list.Item, width, height int) list.Model {
 	newList := list.New(items, list.NewDefaultDelegate(), width, height)
 	newList.Title = ListTitle
+	newList.Styles.Title.Background(lipgloss.Color(style.FocusedColor))
 	return newList
 }
 
