@@ -15,16 +15,16 @@ func (m Model) View() string {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
-				style.GetFocused(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
-				style.GetNormal(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
+				style.RecommendationFocused(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
+				style.ChatNomal(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
 			),
 		)
 	} else {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(
 				lipgloss.Center,
-				style.GetNormal(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
-				style.GetFocused(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
+				style.RecommendationNormal(m.getViewWidth(), m.getViewHeight()).Render(m.chatView()),
+				style.ChatFocused(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
 			),
 		)
 	}
