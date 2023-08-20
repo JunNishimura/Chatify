@@ -47,6 +47,18 @@ func (i Item) Title() string {
 func (i Item) Description() string { return strings.Join(i.artists, ", ") }
 func (i Item) FilterValue() string { return i.album }
 
+type Speaker int
+
+const (
+	Bot Speaker = iota
+	User
+)
+
+type Message struct {
+	content string
+	speaker Speaker
+}
+
 type Model struct {
 	ctx              context.Context
 	window           *utils.Window
@@ -59,7 +71,7 @@ type Model struct {
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
 	chatCompMessages []openai.ChatCompletionMessage
-	conversation     []string
+	conversation     []*Message
 	functions        []openai.FunctionDefinition
 	availableGenres  []string
 	recommendItems   []list.Item
@@ -79,7 +91,7 @@ const ListTitle = "Chatify's recommendation"
 func newListModel(items []list.Item, width, height int) list.Model {
 	newList := list.New(items, list.NewDefaultDelegate(), width, height)
 	newList.Title = ListTitle
-	newList.Styles.Title.Background(lipgloss.Color(style.FocusedColor))
+	newList.Styles.Title.Background(lipgloss.Color(style.HighlightColor))
 	return newList
 }
 
