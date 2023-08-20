@@ -34,7 +34,7 @@ func (s sessionState) String() string {
 type Item struct {
 	album   string
 	artists []string
-	url     string
+	uri     spotify.URI
 }
 
 func (i Item) Title() string       { return i.album }
@@ -47,6 +47,7 @@ type Model struct {
 	state            sessionState
 	textInput        textinput.Model
 	list             list.Model
+	selectedItem     Item
 	cfg              *config.Config
 	user             *model.User
 	spotifyClient    *spotify.Client

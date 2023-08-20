@@ -36,16 +36,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state = chatView
 			}
 		case "enter":
-			answer := m.textInput.Value()
-			m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleUser,
-				Content: answer,
-			})
-			m.conversation = append(m.conversation, answer)
+			if m.state == chatView {
+				answer := m.textInput.Value()
+				m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
+					Role:    openai.ChatMessageRoleUser,
+					Content: answer,
+				})
+				m.conversation = append(m.conversation, answer)
 
-			m.textInput.Reset()
+				m.textInput.Reset()
 
-			return m, m.generate
+				return m, m.generate
+			} else {
+				if selectedItem, ok := m.list.SelectedItem().(Item); ok {
+					m.selectedItem = selectedItem
+					return m, m.playMusic
+				}
+			}
 		}
 	case loadConfigMsg:
 		m.cfg = msg.cfg
@@ -325,13 +332,22 @@ func (m Model) recommend() tea.Msg {
 			artists = append(artists, artist.Name)
 		}
 
-		item := &Item{
+		item := Item{
 			album:   track.Album.Name,
 			artists: artists,
-			url:     track.ExternalURLs["spotify"],
+			uri:     track.URI,
 		}
 		items = append(items, item)
 	}
 
 	return recommendMsg{items}
+}
+
+func (m Model) playMusic() tea.Msg {
+	if err := m.spotifyClient.PlayOpt(m.ctx, &spotify.PlayOptions{
+		URIs: []spotify.URI{m.selectedItem.uri},
+	}); err != nil {
+		return errMsg{err}
+	}
+	return nil
 }
