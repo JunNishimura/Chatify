@@ -42,14 +42,19 @@ func (m Model) getViewHeight() int {
 
 func (m Model) chatView() string {
 	var s string
+	var lastSpeaker Speaker
 	for _, message := range m.conversation {
 		if message.speaker == Bot {
 			s += style.BotChat(m.getViewWidth()).Render(message.content) + "\n\n"
+			lastSpeaker = Bot
 		} else if message.speaker == User {
 			s += style.UserChat().Render(message.content) + "\n\n"
+			lastSpeaker = User
 		}
 	}
-	s += style.TextInput().Render(m.textInput.View())
+	if s != "" && lastSpeaker == Bot {
+		s += style.TextInput().Render(m.textInput.View())
+	}
 	return s
 }
 
