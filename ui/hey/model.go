@@ -78,10 +78,12 @@ type Model struct {
 }
 
 func NewModel() Model {
+	window := utils.NewWindow()
+
 	return Model{
 		ctx:       context.Background(),
-		window:    utils.NewWindow(),
-		textInput: newTextInput(),
+		window:    window,
+		textInput: newTextInput(window.Width),
 		list:      newListModel([]list.Item{}, 0, 0),
 	}
 }
@@ -98,11 +100,11 @@ func newListModel(items []list.Item, width, height int) list.Model {
 	return newList
 }
 
-func newTextInput() textinput.Model {
+func newTextInput(width int) textinput.Model {
 	ti := textinput.New()
 	ti.Focus()
 	ti.CharLimit = 100
-	ti.Width = 100
+	ti.Width = width
 
 	return ti
 }
