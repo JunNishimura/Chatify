@@ -1,11 +1,16 @@
 package style
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
+)
 
 const (
-	White          = "#ffffff"
-	HighlightColor = "#1DB954"
-	BgColor        = "#191414"
+	White              = "#ffffff"
+	Gray               = "#777777"
+	HighlightColor     = "#1DB954"
+	SemiHighlightColor = "#146542"
+	BgColor            = "#191414"
 )
 
 func ChatNomal(width, height int) lipgloss.Style {
@@ -55,4 +60,33 @@ func UserChat() lipgloss.Style {
 func TextInput() lipgloss.Style {
 	return lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Left)
+}
+
+func List() (s list.DefaultItemStyles) {
+	s.NormalTitle = lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Light: White, Dark: White}).
+		Padding(0, 0, 0, 4)
+
+	s.NormalDesc = s.NormalTitle.Copy().
+		Foreground(lipgloss.AdaptiveColor{Light: Gray, Dark: Gray})
+
+	s.SelectedTitle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: HighlightColor, Dark: HighlightColor}).
+		Foreground(lipgloss.AdaptiveColor{Light: HighlightColor, Dark: HighlightColor}).
+		Padding(0, 0, 0, 1)
+
+	s.SelectedDesc = s.SelectedTitle.Copy().
+		Foreground(lipgloss.AdaptiveColor{Light: SemiHighlightColor, Dark: SemiHighlightColor})
+
+	s.DimmedTitle = lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Light: HighlightColor, Dark: HighlightColor}).
+		Padding(0, 0, 0, 2)
+
+	s.DimmedDesc = s.DimmedTitle.Copy().
+		Foreground(lipgloss.AdaptiveColor{Light: SemiHighlightColor, Dark: SemiHighlightColor})
+
+	s.FilterMatch = lipgloss.NewStyle().Underline(true)
+
+	return s
 }

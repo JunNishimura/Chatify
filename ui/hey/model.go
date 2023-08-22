@@ -86,11 +86,14 @@ func NewModel() Model {
 	}
 }
 
-const ListTitle = "Chatify's recommendation"
+const listTitle = "Chatify's recommendation"
 
 func newListModel(items []list.Item, width, height int) list.Model {
-	newList := list.New(items, list.NewDefaultDelegate(), width, height)
-	newList.Title = ListTitle
+	newDelegate := list.NewDefaultDelegate()
+	newDelegate.Styles = style.List()
+
+	newList := list.New(items, newDelegate, width, height)
+	newList.Title = listTitle
 	newList.Styles.Title.Background(lipgloss.Color(style.HighlightColor))
 	return newList
 }
