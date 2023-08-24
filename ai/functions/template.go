@@ -9,11 +9,16 @@ import (
 
 // function name
 const (
-	RecommendFunctionName       = "recommend"
-	SetGenresFunctionName       = "setGenres"
-	SetDanceabilityFunctionName = "setDanceability"
-	SetValenceFunctionName      = "setValence"
-	SetPopularityFunctionName   = "setPopularity"
+	RecommendFunctionName           = "recommend"
+	SetGenresFunctionName           = "setGenres"
+	SetDanceabilityFunctionName     = "setDanceability"
+	SetValenceFunctionName          = "setValence"
+	SetPopularityFunctionName       = "setPopularity"
+	SetAcousticnessFunctionName     = "setAcousticness"
+	SetEnergyFunctionName           = "setEnergy"
+	SetInstrumentalnessFunctionName = "setInstrumentalness"
+	SetLivenessFunctionaName        = "setLiveness"
+	SetSpeechinessFunctionName      = "setSpeechiness"
 
 	ObjectType = "object"
 	StringType = "string"
@@ -98,7 +103,7 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
-							A quantitative expression of the music danceability the user wants.
+							A quantitative expression of the music valence the user wants.
 							A value ranges from 0.0 to 1.0.
 							Tracks with high valence sound more positive, while tracks with low valence sound more negative.`,
 						),
@@ -123,9 +128,159 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
-							A quantitative expression of the music danceability the user wants.
+							A quantitative expression of the music popularity the user wants.
 							A value ranges from 0 to 100.
 							Tracks with high popularity is more popular.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetAcousticnessFunctionName,
+			Description: heredoc.Doc(`
+				Save the acousticness value the user wants to listen to. 
+				Acousticness describes how much the track is acoustic`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music acousticness the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music acousticness the user wants.
+							A value ranges from 0 to 100.
+							Tracks with high acousticness is more acoustic.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetAcousticnessFunctionName,
+			Description: heredoc.Doc(`
+				Save the acousticness value the user wants to listen to. 
+				Acousticness describes how much the track is acoustic`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music acousticness the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music acousticness the user wants.
+							A value ranges from 0 to 1.0.
+							Tracks with high acousticness is more acoustic.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetEnergyFunctionName,
+			Description: heredoc.Doc(`
+				Save the energy value the user wants to listen to. 
+				Energy describes how much the track has energy`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music energy the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music energy the user wants.
+							A value ranges from 0 to 1.0.
+							Tracks with high energy is more energy.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetInstrumentalnessFunctionName,
+			Description: heredoc.Doc(`
+				Save the instrumentalness value the user wants to listen to. 
+				Instrumentalness describes how much the track is instrumental`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music instrumentalness the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music instrumentalness the user wants.
+							A value ranges from 0 to 1.0.
+							Tracks with high instrumentalness is more instrumental.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetLivenessFunctionaName,
+			Description: heredoc.Doc(`
+				Save the liveness value the user wants to listen to. 
+				Liveness describes how much the track is live`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music liveness the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music liveness the user wants.
+							A value ranges from 0 to 1.0.
+							Tracks with high liveness is more live.`,
+						),
+					},
+				},
+				Required: []string{"qualitative_value", "quatitative_value"},
+			},
+		},
+		{
+			Name: SetSpeechinessFunctionName,
+			Description: heredoc.Doc(`
+				Save the speechiness value the user wants to listen to. 
+				Speechiness describes how much the track is speech-like`,
+			),
+			Parameters: Parameters{
+				Type: ObjectType,
+				Properties: SetProperties{
+					QualitativeValue: Property{
+						Type:        StringType,
+						Description: "A qualitative expression of the music speechiness the user wants.",
+					},
+					QuantitativeValue: Property{
+						Type: NumberType,
+						Description: heredoc.Doc(`
+							A quantitative expression of the music speechiness the user wants.
+							A value ranges from 0 to 1.0.
+							Tracks with high speechiness is more speech-like.`,
 						),
 					},
 				},
