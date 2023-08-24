@@ -3,6 +3,7 @@ package hey
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
@@ -196,6 +197,7 @@ func (m Model) generate() tea.Msg {
 type chatCompMsg struct{ msg openai.ChatCompletionMessage }
 
 func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
+	log.Println("function call: ", functionCall.Name)
 	switch functionCall.Name {
 	case functions.SetGenresFunctionName:
 		return func() tea.Msg {
@@ -287,16 +289,127 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				},
 			}
 		}
+	case functions.SetAcousticnessFunctionName:
+		return func() tea.Msg {
+			result := &struct {
+				QualitativeValue  string  `json:"qualitative_value"`
+				QuantitativeValue float64 `json:"quantitative_value"`
+			}{}
+			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
+				return func() tea.Msg {
+					return errMsg{err}
+				}
+			}
+
+			functions.SetAcousticness(&m.user.MusicOrientation.Acousticness, result.QuantitativeValue)
+
+			return chatCompMsg{
+				msg: openai.ChatCompletionMessage{
+					Name:    functionCall.Name,
+					Role:    openai.ChatMessageRoleFunction,
+					Content: result.QualitativeValue,
+				},
+			}
+		}
+	case functions.SetEnergyFunctionName:
+		return func() tea.Msg {
+			result := &struct {
+				QualitativeValue  string  `json:"qualitative_value"`
+				QuantitativeValue float64 `json:"quantitative_value"`
+			}{}
+			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
+				return func() tea.Msg {
+					return errMsg{err}
+				}
+			}
+
+			functions.SetEnergy(&m.user.MusicOrientation.Energy, result.QuantitativeValue)
+
+			return chatCompMsg{
+				msg: openai.ChatCompletionMessage{
+					Name:    functionCall.Name,
+					Role:    openai.ChatMessageRoleFunction,
+					Content: result.QualitativeValue,
+				},
+			}
+		}
+	case functions.SetInstrumentalnessFunctionName:
+		return func() tea.Msg {
+			result := &struct {
+				QualitativeValue  string  `json:"qualitative_value"`
+				QuantitativeValue float64 `json:"quantitative_value"`
+			}{}
+			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
+				return func() tea.Msg {
+					return errMsg{err}
+				}
+			}
+
+			functions.SetInstrumentalness(&m.user.MusicOrientation.Instrumentalness, result.QuantitativeValue)
+
+			return chatCompMsg{
+				msg: openai.ChatCompletionMessage{
+					Name:    functionCall.Name,
+					Role:    openai.ChatMessageRoleFunction,
+					Content: result.QualitativeValue,
+				},
+			}
+		}
+	case functions.SetLivenessFunctionaName:
+		return func() tea.Msg {
+			result := &struct {
+				QualitativeValue  string  `json:"qualitative_value"`
+				QuantitativeValue float64 `json:"quantitative_value"`
+			}{}
+			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
+				return func() tea.Msg {
+					return errMsg{err}
+				}
+			}
+
+			functions.SetLiveness(&m.user.MusicOrientation.Liveness, result.QuantitativeValue)
+
+			return chatCompMsg{
+				msg: openai.ChatCompletionMessage{
+					Name:    functionCall.Name,
+					Role:    openai.ChatMessageRoleFunction,
+					Content: result.QualitativeValue,
+				},
+			}
+		}
+	case functions.SetSpeechinessFunctionName:
+		return func() tea.Msg {
+			result := &struct {
+				QualitativeValue  string  `json:"qualitative_value"`
+				QuantitativeValue float64 `json:"quantitative_value"`
+			}{}
+			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
+				return func() tea.Msg {
+					return errMsg{err}
+				}
+			}
+
+			functions.SetSpeechiness(&m.user.MusicOrientation.Speechiness, result.QuantitativeValue)
+
+			return chatCompMsg{
+				msg: openai.ChatCompletionMessage{
+					Name:    functionCall.Name,
+					Role:    openai.ChatMessageRoleFunction,
+					Content: result.QualitativeValue,
+				},
+			}
+		}
 	}
 
 	return nil
 }
 
-const RecommendCount = 20
+const RecommendCount = 100
 
 type recommendMsg struct{ items []list.Item }
 
 func (m Model) recommend() tea.Msg {
+	log.Println("rec")
 	if !m.user.MusicOrientation.Genres.HasChanged {
 		return nil
 	}
@@ -319,6 +432,21 @@ func (m Model) recommend() tea.Msg {
 	}
 	if m.user.MusicOrientation.Popularity.HasChanged {
 		trackAttrib.TargetPopularity(m.user.MusicOrientation.Popularity.Value)
+	}
+	if m.user.MusicOrientation.Acousticness.HasChanged {
+		trackAttrib.TargetAcousticness(m.user.MusicOrientation.Acousticness.Value)
+	}
+	if m.user.MusicOrientation.Energy.HasChanged {
+		trackAttrib.TargetEnergy(m.user.MusicOrientation.Energy.Value)
+	}
+	if m.user.MusicOrientation.Instrumentalness.HasChanged {
+		trackAttrib.TargetInstrumentalness(m.user.MusicOrientation.Instrumentalness.Value)
+	}
+	if m.user.MusicOrientation.Liveness.HasChanged {
+		trackAttrib.TargetLiveness(m.user.MusicOrientation.Liveness.Value)
+	}
+	if m.user.MusicOrientation.Speechiness.HasChanged {
+		trackAttrib.TargetSpeechiness(m.user.MusicOrientation.Speechiness.Value)
 	}
 
 	recommendations, err := m.spotifyClient.GetRecommendations(m.ctx, seeds, trackAttrib, spotify.Limit(RecommendCount))
