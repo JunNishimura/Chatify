@@ -5,7 +5,7 @@ import "github.com/MakeNowJust/heredoc/v2"
 var Base = heredoc.Doc(`
 				Below is a conversation with an AI chatbot.
 
-				The bot analyzes the music the interlocutor is looking for by asking 9 questions.
+				The bot analyzes the music the interlocutor is looking for by asking the following 9 questions in order.
 
 				The bot analyzes the music orientation of the music the interlocutor is currently seeking by breaking it down into the following elements.
 				1. Genre
@@ -43,7 +43,7 @@ var Base = heredoc.Doc(`
 				Limit the number of questions the bot asks the interlocutor in one conversation to one.
 
 				[Third note]
-				When the bot has finished asking questions for all items, output the sentence <END> with the message “Enjoy the music”.
+				When the bot has finished asking 9 questions, output the sentence <END> with the message “Enjoy the music”.
 
 				Please begin with the first question.
 `)
