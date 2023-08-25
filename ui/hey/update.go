@@ -96,6 +96,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case recommendMsg:
 		m.recommendItems = msg.items
 		m.list = newListModel(m.recommendItems, m.getViewWidth(), m.getViewHeight())
+	case errMsg:
+		log.Println(msg.err)
 	}
 
 	m.textInput, inputCmd = m.textInput.Update(msg)
@@ -181,7 +183,7 @@ func (m Model) generate() tea.Msg {
 	resp, err := m.openaiClient.CreateChatCompletion(
 		m.ctx,
 		openai.ChatCompletionRequest{
-			Model:        openai.GPT3Dot5Turbo,
+			Model:        openai.GPT3Dot5Turbo16K0613,
 			Messages:     m.chatCompMessages,
 			Functions:    m.functions,
 			FunctionCall: "auto",
@@ -197,7 +199,6 @@ func (m Model) generate() tea.Msg {
 type chatCompMsg struct{ msg openai.ChatCompletionMessage }
 
 func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
-	log.Println("function call: ", functionCall.Name)
 	switch functionCall.Name {
 	case functions.SetGenresFunctionName:
 		return func() tea.Msg {
@@ -409,7 +410,6 @@ const RecommendCount = 100
 type recommendMsg struct{ items []list.Item }
 
 func (m Model) recommend() tea.Msg {
-	log.Println("rec")
 	if !m.user.MusicOrientation.Genres.HasChanged {
 		return nil
 	}
