@@ -70,6 +70,7 @@ type Model struct {
 	user             *model.User
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
+	questionIndex    int
 	chatCompMessages []openai.ChatCompletionMessage
 	conversation     []*Message
 	functions        []openai.FunctionDefinition

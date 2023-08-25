@@ -19,3 +19,23 @@ func SetValence(valence *utils.Info[float64], value float64) {
 func SetPopularity(popularity *utils.Info[int], value int) {
 	utils.SetInfo(popularity, value)
 }
+
+func SetAcousticness(acousticness *utils.Info[float64], value float64) {
+	utils.SetInfo(acousticness, value)
+}
+
+func SetEnergy(energy *utils.Info[float64], value float64) {
+	utils.SetInfo(energy, value)
+}
+
+func SetInstrumentalness(instrumentalness *utils.Info[float64], value float64) {
+	utils.SetInfo(instrumentalness, value)
+}
+
+func SetLiveness(liveness *utils.Info[float64], value float64) {
+	utils.SetInfo(liveness, value)
+}
+
+func SetSpeechiness(speechiness *utils.Info[float64], value float64) {
+	utils.SetInfo(speechiness, value)
+}
