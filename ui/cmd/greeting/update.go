@@ -70,7 +70,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 type loadConfigMsg struct{ cfg *config.Config }
 
 func (m *Model) loadConfig() tea.Msg {
-	return errMsg{err: errors.New("test")}
 	cfg, err := config.New()
 	if err != nil {
 		return errMsg{err: err}
