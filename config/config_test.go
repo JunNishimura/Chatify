@@ -221,7 +221,126 @@ func TestConfig_Load(t *testing.T) {
 	}
 }
 
-func TestConf_IsClientValid(t *testing.T) {
+func TestConfig_Set(t *testing.T) {
+	type args struct {
+		key   ConfKey
+		value any
+	}
+	tests := []struct {
+		name string
+		args
+		wantKey   ConfKey
+		wantValue string
+		wantErr   bool
+	}{
+		{
+			name: "success; spotify ID",
+			args: args{
+				key:   SpotifyIDKey,
+				value: "test",
+			},
+			wantKey:   SpotifyIDKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; spotify secret",
+			args: args{
+				key:   SpotifySecretKey,
+				value: "test",
+			},
+			wantKey:   SpotifySecretKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; openai api",
+			args: args{
+				key:   OpenAIAPIKey,
+				value: "test",
+			},
+			wantKey:   OpenAIAPIKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; device id",
+			args: args{
+				key:   DeviceID,
+				value: "test",
+			},
+			wantKey:   DeviceID,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; access token",
+			args: args{
+				key:   AccessTokenKey,
+				value: "test",
+			},
+			wantKey:   AccessTokenKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; refresh token",
+			args: args{
+				key:   RefreshTokenKey,
+				value: "test",
+			},
+			wantKey:   RefreshTokenKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
+			name: "success; expiration",
+			args: args{
+				key:   ExpirationKey,
+				value: "test",
+			},
+			wantKey:   ExpirationKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			conf := newConfig()
+
+			tmpDir := t.TempDir()
+			configPath := filepath.Join(tmpDir, ConfigDir)
+			if err := constructConfigPath(configPath); err != nil {
+				t.Errorf("fail to construct config path: %v", err)
+				return
+			}
+			if err := setupViper(conf.tokenViper, configPath, "token", "json"); err != nil {
+				t.Errorf("fail to setup token viper: %v", err)
+			}
+			if err := setupViper(conf.clientViper, configPath, "client", "yaml"); err != nil {
+				t.Errorf("fail to setup client viper: %v", err)
+			}
+
+			err := conf.Set(tt.args.key, tt.args.value)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("got error: %v", err)
+			}
+			if tt.wantKey.isTokenKey() {
+				got := conf.tokenViper.GetString(string(tt.wantKey))
+				if got != tt.wantValue {
+					t.Errorf("got: %s, want: %s", got, tt.wantValue)
+				}
+			} else if tt.wantKey.isClientKey() {
+				got := conf.clientViper.GetString(string(tt.wantKey))
+				if got != tt.wantValue {
+					t.Errorf("got: %s, want: %s", got, tt.wantValue)
+				}
+			}
+		})
+	}
+}
+
+func TestConfig_IsClientValid(t *testing.T) {
 	tests := []struct {
 		name          string
 		spotifyID     string
@@ -276,7 +395,7 @@ func TestConf_IsClientValid(t *testing.T) {
 	}
 }
 
-func TestConf_GetClientValue(t *testing.T) {
+func TestConfig_GetClientValue(t *testing.T) {
 	type args struct {
 		key ConfKey
 	}
