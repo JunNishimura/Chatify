@@ -77,6 +77,7 @@ type Model struct {
 	functions        []openai.FunctionDefinition
 	availableGenres  []string
 	recommendItems   []list.Item
+	err              error
 }
 
 func NewModel() *Model {
