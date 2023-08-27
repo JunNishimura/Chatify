@@ -8,6 +8,7 @@ import (
 const (
 	White              = "#ffffff"
 	Gray               = "#777777"
+	Red                = "#ff4444"
 	HighlightColor     = "#1DB954"
 	SemiHighlightColor = "#146542"
 	BgColor            = "#191414"
@@ -94,4 +95,23 @@ func List() (s list.DefaultItemStyles) {
 func AsciiArt() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(HighlightColor))
+}
+
+const errorMessage = "unexpected error happens.\n\nplease report at\n\nhttps://github.com/JunNishimura/Chatify/issues"
+
+func ErrorView(windowWidth, windowHeight int) string {
+	return lipgloss.Place(windowWidth, windowHeight, lipgloss.Center, lipgloss.Center,
+		lipgloss.NewStyle().
+			Width(60).
+			Height(10).
+			BorderStyle(lipgloss.ThickBorder()).
+			BorderForeground(lipgloss.Color(HighlightColor)).
+			Background(lipgloss.AdaptiveColor{Dark: BgColor, Light: BgColor}).
+			Render(lipgloss.Place(50, 10, lipgloss.Center, lipgloss.Center,
+				lipgloss.NewStyle().
+					Width(50).
+					Align(lipgloss.Center).
+					Foreground(lipgloss.Color(Red)).
+					Background(lipgloss.Color(BgColor)).
+					Render(errorMessage))))
 }
