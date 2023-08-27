@@ -4,7 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	greetingUI "github.com/JunNishimura/Chatify/ui/greeting"
+	greetingUI "github.com/JunNishimura/Chatify/ui/cmd/greeting"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )
