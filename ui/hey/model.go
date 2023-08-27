@@ -71,6 +71,7 @@ type Model struct {
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
 	questionIndex    int
+	functionCall     any
 	chatCompMessages []openai.ChatCompletionMessage
 	conversation     []*Message
 	functions        []openai.FunctionDefinition
@@ -78,14 +79,16 @@ type Model struct {
 	recommendItems   []list.Item
 }
 
-func NewModel() Model {
+func NewModel() *Model {
 	window := utils.NewWindow()
 
-	return Model{
-		ctx:       context.Background(),
-		window:    window,
-		textInput: newTextInput(window.Width),
-		list:      newListModel([]list.Item{}, 0, 0),
+	return &Model{
+		ctx:           context.Background(),
+		window:        window,
+		textInput:     newTextInput(window.Width),
+		list:          newListModel([]list.Item{}, 0, 0),
+		questionIndex: 0,
+		functionCall:  "auto",
 	}
 }
 
