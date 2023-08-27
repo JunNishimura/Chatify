@@ -6,9 +6,11 @@ import (
 )
 
 func (m *Model) View() string {
-	var s string
+	if m.err != nil {
+		return style.ErrorView(m.window.Width, m.window.Height)
+	}
 
-	// window size adjustmen
+	var s string
 	if m.state == chatView {
 		s += lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinHorizontal(

@@ -3,7 +3,6 @@ package hey
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
@@ -119,7 +118,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.recommendItems = msg.items
 		m.list = newListModel(m.recommendItems, m.getViewWidth(), m.getViewHeight())
 	case errMsg:
-		log.Println(msg.err)
+		m.err = msg.err
 	}
 
 	m.textInput, inputCmd = m.textInput.Update(msg)
