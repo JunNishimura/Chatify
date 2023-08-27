@@ -7,23 +7,35 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// function name
+type FunctionName string
+
 const (
-	RecommendFunctionName           = "recommend"
-	SetGenresFunctionName           = "setGenres"
-	SetDanceabilityFunctionName     = "setDanceability"
-	SetValenceFunctionName          = "setValence"
-	SetPopularityFunctionName       = "setPopularity"
-	SetAcousticnessFunctionName     = "setAcousticness"
-	SetEnergyFunctionName           = "setEnergy"
-	SetInstrumentalnessFunctionName = "setInstrumentalness"
-	SetLivenessFunctionaName        = "setLiveness"
-	SetSpeechinessFunctionName      = "setSpeechiness"
+	SetGenresFunctionName           FunctionName = "setGenres"
+	SetDanceabilityFunctionName     FunctionName = "setDanceability"
+	SetValenceFunctionName          FunctionName = "setValence"
+	SetPopularityFunctionName       FunctionName = "setPopularity"
+	SetAcousticnessFunctionName     FunctionName = "setAcousticness"
+	SetEnergyFunctionName           FunctionName = "setEnergy"
+	SetInstrumentalnessFunctionName FunctionName = "setInstrumentalness"
+	SetLivenessFunctionaName        FunctionName = "setLiveness"
+	SetSpeechinessFunctionName      FunctionName = "setSpeechiness"
 
 	ObjectType = "object"
 	StringType = "string"
 	NumberType = "number"
 )
+
+var List = []FunctionName{
+	SetGenresFunctionName,
+	SetDanceabilityFunctionName,
+	SetValenceFunctionName,
+	SetPopularityFunctionName,
+	SetAcousticnessFunctionName,
+	SetEnergyFunctionName,
+	SetInstrumentalnessFunctionName,
+	SetLivenessFunctionaName,
+	SetSpeechinessFunctionName,
+}
 
 type Parameters struct {
 	Type       string   `json:"type"`
@@ -31,8 +43,11 @@ type Parameters struct {
 	Required   []string `json:"required"`
 }
 
-type SetProperties struct {
-	QualitativeValue  Property `json:"qualitative_value,omitempty"`
+type QualitativeProperty struct {
+	QualitativeValue Property `json:"qualitative_value,omitempty"`
+}
+
+type QuantitativeProperty struct {
 	QuantitativeValue Property `json:"quantitative_value,omitempty"`
 }
 
@@ -44,11 +59,11 @@ type Property struct {
 func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 	return []openai.FunctionDefinition{
 		{
-			Name:        SetGenresFunctionName,
+			Name:        string(SetGenresFunctionName),
 			Description: "Store the genre of the music the user wants to listent to.",
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
+				Properties: QualitativeProperty{
 					QualitativeValue: Property{
 						Type: StringType,
 						Description: heredoc.Docf(`
@@ -63,17 +78,13 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 			},
 		},
 		{
-			Name: SetDanceabilityFunctionName,
+			Name: string(SetDanceabilityFunctionName),
 			Description: heredoc.Doc(`
 				Store the danceability value the user wants to listen to. 
 			`),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music danceability the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -83,21 +94,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetValenceFunctionName,
+			Name: string(SetValenceFunctionName),
 			Description: heredoc.Doc(`
 				Store the valence value the user wants to listen to. `,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music valence the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -107,21 +114,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetPopularityFunctionName,
+			Name: string(SetPopularityFunctionName),
 			Description: heredoc.Doc(`
 				Store the popularity value the user wants to listen to. `,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music popularity the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -131,21 +134,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetAcousticnessFunctionName,
+			Name: string(SetAcousticnessFunctionName),
 			Description: heredoc.Doc(`
 				Store the value of acoustic feeling the user wants from the music.`,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music acousticness the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -155,21 +154,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetEnergyFunctionName,
+			Name: string(SetEnergyFunctionName),
 			Description: heredoc.Doc(`
 				Store the value of energy the user wants from the music.`,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music energy the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -179,21 +174,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetInstrumentalnessFunctionName,
+			Name: string(SetInstrumentalnessFunctionName),
 			Description: heredoc.Doc(`
 				Store the instrumentalness value the user wants to listen to. `,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music instrumentalness the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -203,21 +194,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetLivenessFunctionaName,
+			Name: string(SetLivenessFunctionaName),
 			Description: heredoc.Doc(`
 				Store the liveness value the user wants to listen to.`,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music liveness the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -227,21 +214,17 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 		{
-			Name: SetSpeechinessFunctionName,
+			Name: string(SetSpeechinessFunctionName),
 			Description: heredoc.Doc(`
 				Store the speechiness value the user wants to listen to.`,
 			),
 			Parameters: Parameters{
 				Type: ObjectType,
-				Properties: SetProperties{
-					QualitativeValue: Property{
-						Type:        StringType,
-						Description: "A qualitative expression of the music speechiness the user wants.",
-					},
+				Properties: QuantitativeProperty{
 					QuantitativeValue: Property{
 						Type: NumberType,
 						Description: heredoc.Doc(`
@@ -251,7 +234,7 @@ func GetFunctionDefinitions(genres []string) []openai.FunctionDefinition {
 						),
 					},
 				},
-				Required: []string{"qualitative_value", "quatitative_value"},
+				Required: []string{"qualitative_value"},
 			},
 		},
 	}
