@@ -2,107 +2,103 @@ package greeting
 
 import (
 	"context"
-	"strings"
 
 	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/Chatify/utils"
 	"github.com/JunNishimura/spotify/v2"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/charmbracelet/lipgloss"
-)
-
-const (
-	TextAreaWidth     = 200
-	TextAreaHeight    = 3
-	TextAreaCharLimit = 200
-	ViewportWidth     = 100
-	ViewportHeight    = 8
+	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/charmbracelet/bubbles/textinput"
 )
 
 var (
-	senderStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 	qaListTemplate = []*QA{
 		{
-			question:    `May I ask for your "Spotify ID"?`,
-			answer:      "",
-			placeholder: `Please enter your "Spotify ID".`,
+			question: `May I ask for your "Spotify ID"?`,
+			answer:   "",
 		},
 		{
-			question:    `Next, may I ask for your "Spotify Secret"?`,
-			answer:      "",
-			placeholder: `Please enter your "Spotify Secret".`,
+			question: `Next, may I ask for your "Spotify Secret"?`,
+			answer:   "",
 		},
 		{
-			question:    `Finally, may I ask for your "OpenAI API key"?`,
-			answer:      "",
-			placeholder: `Please enter your "OpenAI API key".`,
+			question: `Finally, may I ask for your "OpenAI API key"?`,
+			answer:   "",
 		},
+	}
+	conversationTemplate = []*Message{
+		{
+			speaker: Bot,
+			content: heredoc.Docf(`
+				Hi there, I'm Chatify! I want to know about you.
+				%s
+			`, qaListTemplate[0].question),
+		},
+	}
+	confKeyList = []config.ConfKey{
+		config.SpotifyIDKey,
+		config.SpotifySecretKey,
+		config.OpenAIAPIKey,
 	}
 )
 
-type Model struct {
-	ctx             context.Context
-	index           int
-	writeIndex      int
-	cfg             *config.Config
-	textarea        textarea.Model
-	confKeyList     []config.ConfKey
-	displayMessages []string
-	qaList          []*QA
-	viewport        viewport.Model
-	user            *spotify.PrivateUser
-	spotifyClient   *spotify.Client
-	senderStyle     lipgloss.Style
-	qaDone          bool
-	setConfigDone   bool
-	greetingDone    bool
-	err             error
-}
-
 type QA struct {
-	question    string
-	answer      string
-	placeholder string
+	question string
+	answer   string
 }
 
-func NewModel() Model {
-	greetings := []string{
-		senderStyle.Render("Chatify: ") + "Hi there, I'm Chatify!",
-		"         I want to know three things.",
-		"         " + qaListTemplate[0].question,
+type Speaker int
+
+const (
+	Bot Speaker = iota
+	User
+)
+
+type Message struct {
+	content string
+	speaker Speaker
+}
+
+type Phase int
+
+const (
+	questionPhase Phase = iota
+	authPhase
+	devicePhase
+	completePhase
+)
+
+type Model struct {
+	ctx           context.Context
+	window        *utils.Window
+	textInput     textinput.Model
+	cfg           *config.Config
+	phase         Phase
+	questionIndex int
+	qaList        []*QA
+	conversation  []*Message
+	user          *spotify.PrivateUser
+	spotifyClient *spotify.Client
+}
+
+func NewModel() *Model {
+	window := utils.NewWindow()
+
+	return &Model{
+		ctx:           context.Background(),
+		window:        window,
+		textInput:     newTextInput(window.Width),
+		phase:         questionPhase,
+		questionIndex: 0,
+		qaList:        qaListTemplate,
+		conversation:  conversationTemplate,
 	}
-
-	return Model{
-		ctx:             context.Background(),
-		index:           0,
-		writeIndex:      0,
-		confKeyList:     []config.ConfKey{config.SpotifyIDKey, config.SpotifySecretKey, config.OpenAIAPIKey},
-		displayMessages: greetings,
-		qaList:          qaListTemplate,
-		textarea:        newTextArea(),
-		viewport:        newViewport(greetings),
-		senderStyle:     senderStyle,
-		err:             nil,
-	}
 }
 
-func newTextArea() textarea.Model {
-	ta := textarea.New()
-	ta.Placeholder = qaListTemplate[0].placeholder
-	ta.Focus()
-	ta.CharLimit = TextAreaCharLimit
-	ta.SetHeight(TextAreaHeight)
-	ta.SetWidth(TextAreaWidth)
-	ta.FocusedStyle.CursorLine = lipgloss.NewStyle()
-	ta.ShowLineNumbers = false
-	ta.KeyMap.InsertNewline.SetEnabled(false)
+func newTextInput(width int) textinput.Model {
+	ti := textinput.New()
+	ti.Focus()
+	ti.CharLimit = 100
+	ti.Width = width
 
-	return ta
-}
-
-func newViewport(greetings []string) viewport.Model {
-	vp := viewport.New(ViewportWidth, ViewportHeight)
-	vp.SetContent(strings.Join(greetings, "\n"))
-
-	return vp
+	return ti
 }

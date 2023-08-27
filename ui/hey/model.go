@@ -6,7 +6,7 @@ import (
 
 	"github.com/JunNishimura/Chatify/ai/model"
 	"github.com/JunNishimura/Chatify/config"
-	"github.com/JunNishimura/Chatify/ui/hey/style"
+	"github.com/JunNishimura/Chatify/ui/style"
 	"github.com/JunNishimura/Chatify/utils"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
