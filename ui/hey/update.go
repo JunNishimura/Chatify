@@ -19,7 +19,7 @@ import (
 
 type errMsg struct{ err error }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		inputCmd tea.Cmd
 		listCmd  tea.Cmd
@@ -48,7 +48,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.textInput.Reset()
 
-				return m, m.generate
+				if m.questionIndex == 0 {
+					m.functionCall = struct {
+						Name string `json:"name"`
+					}{
+						Name: string(functions.List[m.questionIndex]),
+					}
+					return m, m.generate
+				}
+				return m, m.guessQuantitativeValue
 			} else {
 				if selectedItem, ok := m.list.SelectedItem().(Item); ok {
 					m.selectedItem = selectedItem
@@ -89,9 +97,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 			m.conversation = append(m.conversation, &Message{content: content, speaker: Bot})
 		}
+	case guessedMsg:
+		content := msg.resp.Choices[0].Message.Content
+		m.functionCall = struct {
+			Name string `json:"name"`
+		}{
+			Name: string(functions.List[m.questionIndex]),
+		}
+		m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: content,
+		})
+		return m, m.generate
 	case chatCompMsg:
 		m.chatCompMessages = append(m.chatCompMessages, msg.msg)
 
+		m.functionCall = "auto"
+		m.questionIndex++
 		return m, tea.Batch(m.generate, m.recommend)
 	case recommendMsg:
 		m.recommendItems = msg.items
@@ -110,7 +132,7 @@ type loadConfigMsg struct {
 	cfg *config.Config
 }
 
-func (m Model) loadConfig() tea.Msg {
+func (m *Model) loadConfig() tea.Msg {
 	cfg, err := config.New()
 	if err != nil {
 		return errMsg{err}
@@ -129,7 +151,7 @@ type spotifyMsg struct {
 	user            *model.User
 }
 
-func (m Model) setupSpotify() tea.Msg {
+func (m *Model) setupSpotify() tea.Msg {
 	a := auth.NewAuth(m.cfg)
 
 	token := m.cfg.GetToken()
@@ -168,7 +190,7 @@ type openaiMsg struct {
 	functions []openai.FunctionDefinition
 }
 
-func (m Model) setupOpenAI() tea.Msg {
+func (m *Model) setupOpenAI() tea.Msg {
 	openaiAPIKey := m.cfg.GetClientValue(config.OpenAIAPIKey)
 
 	return openaiMsg{
@@ -179,14 +201,14 @@ func (m Model) setupOpenAI() tea.Msg {
 
 type responseMsg struct{ resp openai.ChatCompletionResponse }
 
-func (m Model) generate() tea.Msg {
+func (m *Model) generate() tea.Msg {
 	resp, err := m.openaiClient.CreateChatCompletion(
 		m.ctx,
 		openai.ChatCompletionRequest{
 			Model:        openai.GPT3Dot5Turbo16K0613,
 			Messages:     m.chatCompMessages,
 			Functions:    m.functions,
-			FunctionCall: "auto",
+			FunctionCall: m.functionCall,
 		},
 	)
 	if err != nil {
@@ -196,11 +218,31 @@ func (m Model) generate() tea.Msg {
 	return responseMsg{resp}
 }
 
+type guessedMsg struct{ resp openai.ChatCompletionResponse }
+
+// convert user input into quantitative value
+func (m *Model) guessQuantitativeValue() tea.Msg {
+	resp, err := m.openaiClient.CreateChatCompletion(
+		m.ctx,
+		openai.ChatCompletionRequest{
+			Model:        openai.GPT3Dot5Turbo16K0613,
+			Messages:     m.chatCompMessages,
+			Functions:    m.functions,
+			FunctionCall: "none",
+		},
+	)
+	if err != nil {
+		return errMsg{err}
+	}
+
+	return guessedMsg{resp}
+}
+
 type chatCompMsg struct{ msg openai.ChatCompletionMessage }
 
-func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
+func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 	switch functionCall.Name {
-	case functions.SetGenresFunctionName:
+	case string(functions.SetGenresFunctionName):
 		return func() tea.Msg {
 			result := &struct {
 				QualitativeValue string `json:"qualitative_value"`
@@ -224,10 +266,9 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				},
 			}
 		}
-	case functions.SetDanceabilityFunctionName:
+	case string(functions.SetDanceabilityFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -242,14 +283,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Danceability: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetValenceFunctionName:
+	case string(functions.SetValenceFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -264,14 +304,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Valence: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetPopularityFunctionName:
+	case string(functions.SetPopularityFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -286,14 +325,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Popularity: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetAcousticnessFunctionName:
+	case string(functions.SetAcousticnessFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -308,14 +346,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Acousticness: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetEnergyFunctionName:
+	case string(functions.SetEnergyFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -330,14 +367,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Energy: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetInstrumentalnessFunctionName:
+	case string(functions.SetInstrumentalnessFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -352,14 +388,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Instrumentalness: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetLivenessFunctionaName:
+	case string(functions.SetLivenessFunctionaName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -374,14 +409,13 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Liveness: %f", result.QuantitativeValue),
 				},
 			}
 		}
-	case functions.SetSpeechinessFunctionName:
+	case string(functions.SetSpeechinessFunctionName):
 		return func() tea.Msg {
 			result := &struct {
-				QualitativeValue  string  `json:"qualitative_value"`
 				QuantitativeValue float64 `json:"quantitative_value"`
 			}{}
 			if err := json.Unmarshal([]byte(functionCall.Arguments), result); err != nil {
@@ -396,7 +430,7 @@ func (m Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
-					Content: result.QualitativeValue,
+					Content: fmt.Sprintf("Speechiness: %f", result.QuantitativeValue),
 				},
 			}
 		}
@@ -409,7 +443,7 @@ const RecommendCount = 100
 
 type recommendMsg struct{ items []list.Item }
 
-func (m Model) recommend() tea.Msg {
+func (m *Model) recommend() tea.Msg {
 	if !m.user.MusicOrientation.Genres.HasChanged {
 		return nil
 	}
@@ -472,7 +506,7 @@ func (m Model) recommend() tea.Msg {
 	return recommendMsg{items}
 }
 
-func (m Model) playMusic() tea.Msg {
+func (m *Model) playMusic() tea.Msg {
 	if err := m.spotifyClient.PlayOpt(m.ctx, &spotify.PlayOptions{
 		URIs: []spotify.URI{m.selectedItem.uri},
 	}); err != nil {
