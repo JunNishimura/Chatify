@@ -8,6 +8,9 @@ import (
 )
 
 func (m *Model) View() string {
+	if m.err != nil {
+		return style.ErrorView(m.window.Width, m.window.Height)
+	}
 	return lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,

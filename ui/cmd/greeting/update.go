@@ -2,7 +2,6 @@ package greeting
 
 import (
 	"errors"
-	"log"
 
 	"github.com/JunNishimura/Chatify/auth"
 	"github.com/JunNishimura/Chatify/config"
@@ -60,7 +59,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case deviceMsg:
 		m.phase = completePhase
 	case errMsg:
-		log.Println(msg.err)
+		m.err = msg.err
 	}
 
 	m.textInput, inputCmd = m.textInput.Update(msg)
@@ -71,6 +70,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 type loadConfigMsg struct{ cfg *config.Config }
 
 func (m *Model) loadConfig() tea.Msg {
+	return errMsg{err: errors.New("test")}
 	cfg, err := config.New()
 	if err != nil {
 		return errMsg{err: err}

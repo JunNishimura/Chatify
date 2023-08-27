@@ -78,6 +78,7 @@ type Model struct {
 	conversation  []*Message
 	user          *spotify.PrivateUser
 	spotifyClient *spotify.Client
+	err           error
 }
 
 func NewModel() *Model {
