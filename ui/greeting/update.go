@@ -93,12 +93,10 @@ func (m *Model) setConfig() tea.Msg {
 	m.questionIndex++
 	m.textInput.Reset()
 	if m.questionIndex == len(m.qaList) {
-		m.textInput.Placeholder = ""
 		return questionCompMsg{
 			isDone: true,
 		}
 	}
-	m.textInput.Placeholder = m.qaList[m.questionIndex].placeholder
 	m.conversation = append(m.conversation, &Message{
 		speaker: Bot,
 		content: m.qaList[m.questionIndex].question,

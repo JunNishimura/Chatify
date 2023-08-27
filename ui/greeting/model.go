@@ -13,19 +13,16 @@ import (
 var (
 	qaListTemplate = []*QA{
 		{
-			question:    `May I ask for your "Spotify ID"?`,
-			answer:      "",
-			placeholder: `Please enter your "Spotify ID".`,
+			question: `May I ask for your "Spotify ID"?`,
+			answer:   "",
 		},
 		{
-			question:    `Next, may I ask for your "Spotify Secret"?`,
-			answer:      "",
-			placeholder: `Please enter your "Spotify Secret".`,
+			question: `Next, may I ask for your "Spotify Secret"?`,
+			answer:   "",
 		},
 		{
-			question:    `Finally, may I ask for your "OpenAI API key"?`,
-			answer:      "",
-			placeholder: `Please enter your "OpenAI API key".`,
+			question: `Finally, may I ask for your "OpenAI API key"?`,
+			answer:   "",
 		},
 	}
 	conversationTemplate = []*Message{
@@ -45,9 +42,8 @@ var (
 )
 
 type QA struct {
-	question    string
-	answer      string
-	placeholder string
+	question string
+	answer   string
 }
 
 type Speaker int
@@ -103,7 +99,6 @@ func newTextInput(width int) textinput.Model {
 	ti.Focus()
 	ti.CharLimit = 100
 	ti.Width = width
-	ti.Placeholder = qaListTemplate[0].placeholder
 
 	return ti
 }
