@@ -2,91 +2,73 @@ package greeting
 
 import (
 	"errors"
-	"fmt"
-	"strings"
-	"time"
+	"log"
 
 	"github.com/JunNishimura/Chatify/auth"
 	"github.com/JunNishimura/Chatify/config"
 	"github.com/JunNishimura/spotify/v2"
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type errMsg struct{ err error }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		tiCmd tea.Cmd
-		vpCmd tea.Cmd
-	)
-
-	m.textarea, tiCmd = m.textarea.Update(msg)
-	m.viewport, vpCmd = m.viewport.Update(msg)
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var inputCmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC, tea.KeyEsc:
-			fmt.Println(m.textarea.Value())
+		switch msg.String() {
+		case "ctrl+c", "q":
 			return m, tea.Quit
-		case tea.KeyEnter:
-			if m.greetingDone {
+		case "enter":
+			switch m.phase {
+			case questionPhase:
+				m.qaList[m.questionIndex].answer = m.textInput.Value()
+				m.conversation = append(m.conversation, &Message{
+					speaker: User,
+					content: m.textInput.Value(),
+				})
+				return m, tea.Batch(inputCmd, m.setConfig)
+			case authPhase:
+				return m, m.authorize
+			case devicePhase:
+				return m, m.getDevice
+			case completePhase:
 				return m, tea.Quit
-			} else if m.setConfigDone {
-				return m, m.Authorize
 			}
-
-			m.qaList[m.index].answer = m.textarea.Value()
-
-			m.index++
-			if m.index == len(m.qaList) {
-				m.qaDone = true
-				m.displayMessages = append(m.displayMessages, m.senderStyle.Render("Chatify: ")+"Thank you so much!")
-				m.viewport.SetContent(strings.Join(m.displayMessages, "\n"))
-
-				return m, tea.Batch(
-					m.setClientConfig(m.confKeyList[m.writeIndex], qaListTemplate[m.writeIndex].answer),
-				)
-			}
-
-			m.displayMessages = append(
-				m.displayMessages,
-				m.senderStyle.Render("You: ")+m.textarea.Value(),
-				m.senderStyle.Render("Chatify: ")+m.qaList[m.index].question,
-			)
-			m.viewport.SetContent(strings.Join(m.displayMessages, "\n"))
-			m.viewport.GotoBottom()
-
-			m.textarea.Reset()
-			m.textarea.Placeholder = m.qaList[m.index].placeholder
 		}
-	case writeClientConfigMsg:
-		m.writeIndex++
-		if m.writeIndex < len(m.confKeyList) {
-			return m, m.setClientConfig(m.confKeyList[m.writeIndex], m.qaList[m.writeIndex].answer)
-		}
-		m.setConfigDone = true
 	case loadConfigMsg:
 		m.cfg = msg.cfg
-		return m, textarea.Blink
-	case spotifyUserMsg:
+	case questionCompMsg:
+		if msg.isDone {
+			m.phase = authPhase
+			m.conversation = append(m.conversation, &Message{
+				speaker: Bot,
+				content: "Please press enter to authorize",
+			})
+		}
+	case spotifyMsg:
 		m.user = msg.user
 		m.spotifyClient = msg.client
-		return m, m.getDevice
+		m.phase = devicePhase
+		m.conversation = append(m.conversation, &Message{
+			speaker: Bot,
+			content: "Please open Spotify app to get device ID and press enter",
+		})
 	case deviceMsg:
-		m.greetingDone = true
+		m.phase = completePhase
 	case errMsg:
-		m.err = msg.err
-		return m, tea.Quit
+		log.Println(msg.err)
 	}
 
-	return m, tea.Batch(tiCmd, vpCmd)
+	m.textInput, inputCmd = m.textInput.Update(msg)
+
+	return m, inputCmd
 }
 
 type loadConfigMsg struct{ cfg *config.Config }
 
-func (m Model) loadConfig() tea.Msg {
+func (m *Model) loadConfig() tea.Msg {
 	cfg, err := config.New()
 	if err != nil {
 		return errMsg{err: err}
@@ -99,28 +81,39 @@ func (m Model) loadConfig() tea.Msg {
 	return loadConfigMsg{cfg: cfg}
 }
 
-type writeClientConfigMsg string
-
-func (m Model) setClientConfig(key config.ConfKey, value any) tea.Cmd {
-	start := time.Now()
-	if err := m.cfg.Set(key, value); err != nil {
-		return func() tea.Msg {
-			return errMsg{err: err}
-		}
-	}
-	elapsed := time.Since(start)
-
-	return tea.Tick(elapsed, func(t time.Time) tea.Msg {
-		return writeClientConfigMsg(key)
-	})
+type questionCompMsg struct {
+	isDone bool
 }
 
-type spotifyUserMsg struct {
+func (m *Model) setConfig() tea.Msg {
+	if err := m.cfg.Set(confKeyList[m.questionIndex], m.qaList[m.questionIndex].answer); err != nil {
+		return errMsg{err}
+	}
+
+	m.questionIndex++
+	m.textInput.Reset()
+	if m.questionIndex == len(m.qaList) {
+		m.textInput.Placeholder = ""
+		return questionCompMsg{
+			isDone: true,
+		}
+	}
+	m.textInput.Placeholder = m.qaList[m.questionIndex].placeholder
+	m.conversation = append(m.conversation, &Message{
+		speaker: Bot,
+		content: m.qaList[m.questionIndex].question,
+	})
+	return questionCompMsg{
+		isDone: false,
+	}
+}
+
+type spotifyMsg struct {
 	user   *spotify.PrivateUser
 	client *spotify.Client
 }
 
-func (m Model) Authorize() tea.Msg {
+func (m *Model) authorize() tea.Msg {
 	authClient := auth.NewClient(m.cfg)
 
 	authClient.Authorize()
@@ -132,7 +125,7 @@ func (m Model) Authorize() tea.Msg {
 		return errMsg{err: err}
 	}
 
-	return spotifyUserMsg{
+	return spotifyMsg{
 		user:   user,
 		client: spotifyClient,
 	}
@@ -140,7 +133,7 @@ func (m Model) Authorize() tea.Msg {
 
 type deviceMsg struct{ deviceID string }
 
-func (m Model) getDevice() tea.Msg {
+func (m *Model) getDevice() tea.Msg {
 	devices, err := m.spotifyClient.PlayerDevices(m.ctx)
 	if err != nil {
 		return errMsg{err}
