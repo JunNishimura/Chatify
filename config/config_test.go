@@ -195,14 +195,18 @@ func TestConfig_Load(t *testing.T) {
 	if err != nil {
 		t.Errorf("file open error: %v", err)
 	}
-	io.WriteString(f, fmt.Sprintf(`{"test": "%s"}`, testValue))
+	if _, err := io.WriteString(f, fmt.Sprintf(`{"test": "%s"}`, testValue)); err != nil {
+		t.Errorf("fail to write token.json: %v", err)
+	}
 	f.Close()
 
 	f, err = os.Create(filepath.Join(configPath, "client.yaml"))
 	if err != nil {
 		t.Errorf("file open error: %v", err)
 	}
-	io.WriteString(f, fmt.Sprintf(`test: %s`, testValue))
+	if _, err := io.WriteString(f, fmt.Sprintf(`test: %s`, testValue)); err != nil {
+		t.Errorf("fail to write client.yaml: %v", err)
+	}
 	f.Close()
 
 	if err := conf.Load(); err != nil {
