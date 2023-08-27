@@ -1,11 +1,11 @@
 package hey
 
 import (
-	"github.com/JunNishimura/Chatify/ui/hey/style"
+	"github.com/JunNishimura/Chatify/ui/style"
 	"github.com/charmbracelet/lipgloss"
 )
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	var s string
 
 	// window size adjustmen
@@ -29,18 +29,18 @@ func (m Model) View() string {
 	return s
 }
 
-func (m Model) getViewWidth() int {
+func (m *Model) getViewWidth() int {
 	wholeWidth := m.window.Width - 4
 	halfWidth := wholeWidth / 2
 	return halfWidth
 }
 
-func (m Model) getViewHeight() int {
+func (m *Model) getViewHeight() int {
 	height := m.window.Height - 5
 	return height
 }
 
-func (m Model) chatView() string {
+func (m *Model) chatView() string {
 	var s string
 	var lastSpeaker Speaker
 	for _, message := range m.conversation {
@@ -58,6 +58,6 @@ func (m Model) chatView() string {
 	return s
 }
 
-func (m Model) recommendationView() string {
+func (m *Model) recommendationView() string {
 	return m.list.View()
 }
