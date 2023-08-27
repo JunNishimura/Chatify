@@ -90,3 +90,8 @@ func List() (s list.DefaultItemStyles) {
 
 	return s
 }
+
+func AsciiArt() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color(HighlightColor))
+}
