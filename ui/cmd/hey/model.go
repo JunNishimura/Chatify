@@ -9,11 +9,10 @@ import (
 	"github.com/JunNishimura/Chatify/ai/prompt"
 	"github.com/JunNishimura/Chatify/auth"
 	"github.com/JunNishimura/Chatify/config"
+	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/Chatify/ui/style"
-	"github.com/JunNishimura/Chatify/utils"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/sashabaranov/go-openai"
 )
@@ -59,52 +58,33 @@ func (i Item) Title() string {
 func (i Item) Description() string { return strings.Join(i.artists, ", ") }
 func (i Item) FilterValue() string { return i.album }
 
-type Speaker int
-
-const (
-	Bot Speaker = iota
-	User
-)
-
-type Message struct {
-	content string
-	speaker Speaker
-}
-
 type Model struct {
 	ctx              context.Context
-	window           *utils.Window
+	base             *base.Model
 	state            sessionState
-	textInput        textinput.Model
 	list             list.Model
 	selectedItem     Item
-	cfg              *config.Config
 	user             *model.User
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
 	questionIndex    int
 	functionCall     any
 	chatCompMessages []openai.ChatCompletionMessage
-	conversation     []*Message
 	functions        []openai.FunctionDefinition
 	recommendItems   []list.Item
 	err              error
 }
 
-func NewModel() (*Model, error) {
-	ctx := context.Background()
-
-	window := utils.NewWindow()
-
-	cfg, err := loadConfig()
+func NewModel(ctx context.Context) (*Model, error) {
+	base, err := base.NewModel()
 	if err != nil {
 		return nil, err
 	}
 
-	openAIAPIkey := cfg.GetClientValue(config.OpenAIAPIKey)
+	openAIAPIkey := base.Cfg.GetClientValue(config.OpenAIAPIKey)
 	openAIAPIclient := openai.NewClient(openAIAPIkey)
 
-	spotifyClient, err := getSpotifyClient(ctx, cfg)
+	spotifyClient, err := getSpotifyClient(ctx, base.Cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -121,10 +101,7 @@ func NewModel() (*Model, error) {
 
 	return &Model{
 		ctx:           ctx,
-		window:        window,
-		textInput:     newTextInput(window.Width),
 		list:          newListModel([]list.Item{}, 0, 0),
-		cfg:           cfg,
 		user:          user,
 		spotifyClient: spotifyClient,
 		openaiClient:  openAIAPIclient,
@@ -138,19 +115,6 @@ func NewModel() (*Model, error) {
 		},
 		functions: functions.GetFunctionDefinitions(availableGenres),
 	}, nil
-}
-
-func loadConfig() (*config.Config, error) {
-	cfg, err := config.New()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := cfg.Load(); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
 }
 
 func getSpotifyClient(ctx context.Context, cfg *config.Config) (*spotify.Client, error) {
@@ -196,13 +160,4 @@ func newListModel(items []list.Item, width, height int) list.Model {
 	newList.Title = listTitle
 	newList.Styles.Title.Background(lipgloss.Color(style.HighlightColor))
 	return newList
-}
-
-func newTextInput(width int) textinput.Model {
-	ti := textinput.New()
-	ti.Focus()
-	ti.CharLimit = 100
-	ti.Width = width
-
-	return ti
 }

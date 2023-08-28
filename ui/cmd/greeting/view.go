@@ -3,15 +3,16 @@ package greeting
 import (
 	"fmt"
 
+	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/Chatify/ui/style"
 	"github.com/charmbracelet/lipgloss"
 )
 
 func (m *Model) View() string {
 	if m.err != nil {
-		return style.ErrorView(m.window.Width, m.window.Height)
+		return style.ErrorView(m.base.Window.Width, m.base.Window.Height)
 	}
-	return lipgloss.Place(m.window.Width, m.window.Height, lipgloss.Center, lipgloss.Center,
+	return lipgloss.Place(m.base.Window.Width, m.base.Window.Height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			style.AsciiArt().Render(asciiArtView),
@@ -21,12 +22,12 @@ func (m *Model) View() string {
 }
 
 func (m *Model) getViewWidth() int {
-	halfWidth := m.window.Width / 2
+	halfWidth := m.base.Window.Width / 2
 	return halfWidth
 }
 
 func (m *Model) getViewHeight() int {
-	halfHeight := m.window.Height * 2 / 3
+	halfHeight := m.base.Window.Height * 2 / 3
 	return halfHeight
 }
 
@@ -48,18 +49,18 @@ func (m *Model) chatView() string {
 		ss += lipgloss.NewStyle().Width(m.getViewWidth()).Align(lipgloss.Center, lipgloss.Center).Render(`See you then!! (press to "enter" to exit)`)
 		s = lipgloss.Place(m.getViewWidth(), m.getViewHeight(), lipgloss.Center, lipgloss.Center, ss)
 	default:
-		var lastSpeaker Speaker
-		for _, message := range m.conversation {
-			if message.speaker == Bot {
-				s += style.BotChat(m.getViewWidth()).Render(message.content) + "\n\n"
-				lastSpeaker = Bot
-			} else if message.speaker == User {
-				s += style.UserChat().Render(message.content) + "\n\n"
-				lastSpeaker = User
+		var lastSpeaker base.Speaker
+		for _, message := range m.base.Conversation {
+			if message.Speaker == base.Bot {
+				s += style.BotChat(m.getViewWidth()).Render(message.Content) + "\n\n"
+				lastSpeaker = base.Bot
+			} else if message.Speaker == base.User {
+				s += style.UserChat().Render(message.Content) + "\n\n"
+				lastSpeaker = base.User
 			}
 		}
-		if s != "" && lastSpeaker == Bot && m.phase == questionPhase {
-			s += style.TextInput().Render(m.textInput.View())
+		if s != "" && lastSpeaker == base.Bot && m.phase == questionPhase {
+			s += style.TextInput().Render(m.base.TextInput.View())
 		}
 	}
 	return s

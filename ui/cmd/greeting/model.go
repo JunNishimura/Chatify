@@ -4,10 +4,9 @@ import (
 	"context"
 
 	"github.com/JunNishimura/Chatify/config"
-	"github.com/JunNishimura/Chatify/utils"
+	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/charmbracelet/bubbles/textinput"
 )
 
 var (
@@ -25,10 +24,10 @@ var (
 			answer:   "",
 		},
 	}
-	conversationTemplate = []*Message{
+	conversationTemplate = []*base.Message{
 		{
-			speaker: Bot,
-			content: heredoc.Docf(`
+			Speaker: base.Bot,
+			Content: heredoc.Docf(`
 				Hi there, I'm Chatify! I want to know about you.
 				%s
 			`, qaListTemplate[0].question),
@@ -46,18 +45,6 @@ type QA struct {
 	answer   string
 }
 
-type Speaker int
-
-const (
-	Bot Speaker = iota
-	User
-)
-
-type Message struct {
-	content string
-	speaker Speaker
-}
-
 type Phase int
 
 const (
@@ -69,56 +56,28 @@ const (
 
 type Model struct {
 	ctx           context.Context
-	window        *utils.Window
-	textInput     textinput.Model
-	cfg           *config.Config
+	base          *base.Model
 	phase         Phase
 	questionIndex int
 	qaList        []*QA
-	conversation  []*Message
 	user          *spotify.PrivateUser
 	spotifyClient *spotify.Client
 	err           error
 }
 
-func NewModel() (*Model, error) {
-	window := utils.NewWindow()
-
-	cfg, err := loadConfig()
+func NewModel(ctx context.Context) (*Model, error) {
+	base, err := base.NewModel()
 	if err != nil {
 		return nil, err
 	}
 
+	base.Conversation = conversationTemplate
+
 	return &Model{
-		ctx:           context.Background(),
-		window:        window,
-		textInput:     newTextInput(window.Width),
-		cfg:           cfg,
+		ctx:           ctx,
+		base:          base,
 		phase:         questionPhase,
 		questionIndex: 0,
 		qaList:        qaListTemplate,
-		conversation:  conversationTemplate,
 	}, nil
-}
-
-func loadConfig() (*config.Config, error) {
-	cfg, err := config.New()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := cfg.Load(); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
-}
-
-func newTextInput(width int) textinput.Model {
-	ti := textinput.New()
-	ti.Focus()
-	ti.CharLimit = 100
-	ti.Width = width
-
-	return ti
 }
