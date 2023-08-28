@@ -7,5 +7,5 @@ import (
 )
 
 func (m *Model) Init() tea.Cmd {
-	return tea.Batch(m.loadConfig, textinput.Blink)
+	return textinput.Blink
 }
