@@ -6,10 +6,6 @@ import (
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
-	"github.com/JunNishimura/Chatify/ai/model"
-	"github.com/JunNishimura/Chatify/ai/prompt"
-	"github.com/JunNishimura/Chatify/auth"
-	"github.com/JunNishimura/Chatify/config"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -33,7 +29,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "tab":
 			m.state.Change()
 		case "enter":
-			if m.state == chatView {
+			switch m.state {
+			case chatView:
 				answer := m.textInput.Value()
 				m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
 					Role:    openai.ChatMessageRoleUser,
@@ -44,43 +41,21 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textInput.Reset()
 
 				if m.questionIndex == 0 {
-					m.functionCall = struct {
-						Name string `json:"name"`
-					}{
+					// genres don't have to be converted into quantitative values
+					m.functionCall = functions.Call{
 						Name: string(functions.List[m.questionIndex]),
 					}
 					return m, m.generate
 				}
 				return m, m.guessQuantitativeValue
-			} else {
+			case recommendationView:
 				if selectedItem, ok := m.list.SelectedItem().(Item); ok {
 					m.selectedItem = selectedItem
 					return m, m.playMusic
 				}
 			}
 		}
-	case loadConfigMsg:
-		m.cfg = msg.cfg
-		return m, m.setupSpotify
-	case spotifyMsg:
-		m.spotifyClient = msg.client
-		m.availableGenres = msg.availableGenres
-		m.user = msg.user
-		return m, m.setupOpenAI
-	case openaiMsg:
-		m.openaiClient = msg.client
-
-		m.chatCompMessages = []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: prompt.Base,
-			},
-		}
-
-		m.functions = msg.functions
-
-		return m, m.generate
-	case responseMsg:
+	case generationMsg:
 		functionCall := msg.resp.Choices[0].Message.FunctionCall
 		if functionCall != nil {
 			return m, m.handleFunctionCall(functionCall)
@@ -94,9 +69,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case guessedMsg:
 		content := msg.resp.Choices[0].Message.Content
-		m.functionCall = struct {
-			Name string `json:"name"`
-		}{
+		m.functionCall = functions.Call{
 			Name: string(functions.List[m.questionIndex]),
 		}
 		m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
@@ -104,9 +77,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			Content: content,
 		})
 		return m, m.generate
-	case chatCompMsg:
+	case functionCallMsg:
 		m.chatCompMessages = append(m.chatCompMessages, msg.msg)
-
 		m.functionCall = "auto"
 		m.questionIndex++
 		return m, tea.Batch(m.generate, m.recommend)
@@ -123,78 +95,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(inputCmd, listCmd)
 }
 
-type loadConfigMsg struct {
-	cfg *config.Config
-}
-
-func (m *Model) loadConfig() tea.Msg {
-	cfg, err := config.New()
-	if err != nil {
-		return errMsg{err}
-	}
-
-	if err := cfg.Load(); err != nil {
-		return errMsg{err}
-	}
-
-	return loadConfigMsg{cfg: cfg}
-}
-
-type spotifyMsg struct {
-	client          *spotify.Client
-	availableGenres []string
-	user            *model.User
-}
-
-func (m *Model) setupSpotify() tea.Msg {
-	a := auth.NewAuth(m.cfg)
-
-	token := m.cfg.GetToken()
-
-	newToken, err := a.RefreshToken(m.ctx, token)
-	if err != nil {
-		return errMsg{err}
-	}
-
-	// update an access token if it has expired
-	if token.AccessToken != newToken.AccessToken {
-		if err := m.cfg.SetToken(token); err != nil {
-			return errMsg{err}
-		}
-	}
-
-	client := spotify.New(a.Client(m.ctx, newToken))
-
-	availableGenres, err := client.GetAvailableGenreSeeds(m.ctx)
-	if err != nil {
-		return errMsg{err}
-	}
-
-	curUser, err := client.CurrentUser(m.ctx)
-	if err != nil {
-		return errMsg{err}
-	}
-
-	user := model.NewUser(curUser.DisplayName)
-
-	return spotifyMsg{client, availableGenres, user}
-}
-
-type openaiMsg struct {
-	client    *openai.Client
-	functions []openai.FunctionDefinition
-}
-
-func (m *Model) setupOpenAI() tea.Msg {
-	openaiAPIKey := m.cfg.GetClientValue(config.OpenAIAPIKey)
-
-	return openaiMsg{
-		client:    openai.NewClient(openaiAPIKey),
-		functions: functions.GetFunctionDefinitions(m.availableGenres),
-	}
-}
-
-type responseMsg struct{ resp openai.ChatCompletionResponse }
+type generationMsg struct{ resp openai.ChatCompletionResponse }
 
 func (m *Model) generate() tea.Msg {
 	resp, err := m.openaiClient.CreateChatCompletion(
@@ -210,7 +111,7 @@ func (m *Model) generate() tea.Msg {
 		return errMsg{err}
 	}
 
-	return responseMsg{resp}
+	return generationMsg{resp}
 }
 
 type guessedMsg struct{ resp openai.ChatCompletionResponse }
@@ -233,7 +134,7 @@ func (m *Model) guessQuantitativeValue() tea.Msg {
 	return guessedMsg{resp}
 }
 
-type chatCompMsg struct{ msg openai.ChatCompletionMessage }
+type functionCallMsg struct{ msg openai.ChatCompletionMessage }
 
 func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 	switch functionCall.Name {
@@ -253,7 +154,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetGenres(&m.user.MusicOrientation.Genres, splitGenres)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -274,7 +175,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetDanceability(&m.user.MusicOrientation.Danceability, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -295,7 +196,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetValence(&m.user.MusicOrientation.Valence, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -316,7 +217,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetPopularity(&m.user.MusicOrientation.Popularity, int(result.QuantitativeValue))
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -337,7 +238,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetAcousticness(&m.user.MusicOrientation.Acousticness, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -358,7 +259,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetEnergy(&m.user.MusicOrientation.Energy, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -379,7 +280,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetInstrumentalness(&m.user.MusicOrientation.Instrumentalness, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -400,7 +301,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetLiveness(&m.user.MusicOrientation.Liveness, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -421,7 +322,7 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 
 			functions.SetSpeechiness(&m.user.MusicOrientation.Speechiness, result.QuantitativeValue)
 
-			return chatCompMsg{
+			return functionCallMsg{
 				msg: openai.ChatCompletionMessage{
 					Name:    functionCall.Name,
 					Role:    openai.ChatMessageRoleFunction,
@@ -434,12 +335,12 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 	return nil
 }
 
-const RecommendCount = 100
+const RecommendCount = 25
 
 type recommendMsg struct{ items []list.Item }
 
 func (m *Model) recommend() tea.Msg {
-	if !m.user.MusicOrientation.Genres.HasChanged {
+	if !m.user.MusicOrientation.HasOneChanged() {
 		return nil
 	}
 

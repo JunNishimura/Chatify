@@ -15,7 +15,12 @@ func NewHeyCommand() *cobra.Command {
 		Short: "start conversation with chatify",
 		Long:  "start conversation with chatify",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			p := tea.NewProgram(heyUI.NewModel(), tea.WithAltScreen())
+			model, err := heyUI.NewModel()
+			if err != nil {
+				return err
+			}
+
+			p := tea.NewProgram(model, tea.WithAltScreen())
 
 			if _, err := p.Run(); err != nil {
 				return err
