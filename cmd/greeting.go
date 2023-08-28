@@ -15,7 +15,12 @@ func NewGreetingCommand() *cobra.Command {
 		Short: "config setting for Chatify",
 		Long:  "config setting for Chatify",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			p := tea.NewProgram(greetingUI.NewModel(), tea.WithAltScreen())
+			model, err := greetingUI.NewModel()
+			if err != nil {
+				return err
+			}
+
+			p := tea.NewProgram(model, tea.WithAltScreen())
 
 			if _, err := p.Run(); err != nil {
 				return err

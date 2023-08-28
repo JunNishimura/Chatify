@@ -81,18 +81,37 @@ type Model struct {
 	err           error
 }
 
-func NewModel() *Model {
+func NewModel() (*Model, error) {
 	window := utils.NewWindow()
+
+	cfg, err := loadConfig()
+	if err != nil {
+		return nil, err
+	}
 
 	return &Model{
 		ctx:           context.Background(),
 		window:        window,
 		textInput:     newTextInput(window.Width),
+		cfg:           cfg,
 		phase:         questionPhase,
 		questionIndex: 0,
 		qaList:        qaListTemplate,
 		conversation:  conversationTemplate,
+	}, nil
+}
+
+func loadConfig() (*config.Config, error) {
+	cfg, err := config.New()
+	if err != nil {
+		return nil, err
 	}
+
+	if err := cfg.Load(); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
 }
 
 func newTextInput(width int) textinput.Model {
