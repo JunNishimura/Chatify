@@ -111,3 +111,15 @@ func (m *MusicOrientation) HasAllSet() bool {
 		m.Liveness.HasChanged &&
 		m.Speechiness.HasChanged
 }
+
+func (m *MusicOrientation) HasOneChanged() bool {
+	return m.Genres.HasChanged ||
+		m.Danceability.HasChanged ||
+		m.Valence.HasChanged ||
+		m.Popularity.HasChanged ||
+		m.Acousticness.HasChanged ||
+		m.Energy.HasChanged ||
+		m.Instrumentalness.HasChanged ||
+		m.Liveness.HasChanged ||
+		m.Speechiness.HasChanged
+}
