@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
+	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -21,7 +22,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	)
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.window.UpdateSize()
+		m.base.Window.UpdateSize()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -31,14 +32,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch m.state {
 			case chatView:
-				answer := m.textInput.Value()
+				answer := m.base.TextInput.Value()
 				m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
 					Role:    openai.ChatMessageRoleUser,
 					Content: answer,
 				})
-				m.conversation = append(m.conversation, &Message{content: fmt.Sprintf("> %s", answer), speaker: User})
+				m.base.Conversation = append(m.base.Conversation, &base.Message{Content: fmt.Sprintf("> %s", answer), Speaker: base.User})
 
-				m.textInput.Reset()
+				m.base.TextInput.Reset()
 
 				if m.questionIndex == 0 {
 					// genres don't have to be converted into quantitative values
@@ -65,7 +66,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				Role:    openai.ChatMessageRoleAssistant,
 				Content: content,
 			})
-			m.conversation = append(m.conversation, &Message{content: content, speaker: Bot})
+			m.base.Conversation = append(m.base.Conversation, &base.Message{Content: content, Speaker: base.Bot})
 		}
 	case guessedMsg:
 		content := msg.resp.Choices[0].Message.Content
@@ -89,7 +90,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg.err
 	}
 
-	m.textInput, inputCmd = m.textInput.Update(msg)
+	m.base.TextInput, inputCmd = m.base.TextInput.Update(msg)
 	m.list, listCmd = m.list.Update(msg)
 
 	return m, tea.Batch(inputCmd, listCmd)
