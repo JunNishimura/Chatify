@@ -9,13 +9,13 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/gdamore/tcell/v2 v2.6.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/sashabaranov/go-openai v1.14.2
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
-	golang.org/x/crypto v0.12.0
 	golang.org/x/oauth2 v0.11.0
+	golang.org/x/term v0.11.0
 )
 
 require (
@@ -48,7 +48,6 @@ require (
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/term v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
