@@ -22,6 +22,15 @@ const (
 	recommendationView
 )
 
+func (s sessionState) Change() {
+	switch s {
+	case chatView:
+		s = recommendationView
+	case recommendationView:
+		s = chatView
+	}
+}
+
 func (s sessionState) String() string {
 	switch s {
 	case chatView:

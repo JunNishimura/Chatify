@@ -31,11 +31,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "tab":
-			if m.state == chatView {
-				m.state = recommendationView
-			} else {
-				m.state = chatView
-			}
+			m.state.Change()
 		case "enter":
 			if m.state == chatView {
 				answer := m.textInput.Value()
