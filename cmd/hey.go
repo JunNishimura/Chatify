@@ -4,6 +4,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+
 	heyUI "github.com/JunNishimura/Chatify/ui/cmd/hey"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -15,7 +17,7 @@ func NewHeyCommand() *cobra.Command {
 		Short: "start conversation with chatify",
 		Long:  "start conversation with chatify",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			model, err := heyUI.NewModel()
+			model, err := heyUI.NewModel(context.Background())
 			if err != nil {
 				return err
 			}
