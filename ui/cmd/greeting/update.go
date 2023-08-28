@@ -38,8 +38,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		}
-	case loadConfigMsg:
-		m.cfg = msg.cfg
 	case questionCompMsg:
 		if msg.isDone {
 			m.phase = authPhase
@@ -65,21 +63,6 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.textInput, inputCmd = m.textInput.Update(msg)
 
 	return m, inputCmd
-}
-
-type loadConfigMsg struct{ cfg *config.Config }
-
-func (m *Model) loadConfig() tea.Msg {
-	cfg, err := config.New()
-	if err != nil {
-		return errMsg{err: err}
-	}
-
-	if err := cfg.Load(); err != nil {
-		return errMsg{err: err}
-	}
-
-	return loadConfigMsg{cfg: cfg}
 }
 
 type questionCompMsg struct {
