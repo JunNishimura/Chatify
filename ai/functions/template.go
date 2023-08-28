@@ -37,6 +37,10 @@ var List = []FunctionName{
 	SetSpeechinessFunctionName,
 }
 
+type Call struct {
+	Name string `json:"name"`
+}
+
 type Parameters struct {
 	Type       string   `json:"type"`
 	Properties any      `json:"properties"`
