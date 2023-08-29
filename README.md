@@ -14,6 +14,8 @@
 ## 📖 Overview
 Chatify is a TUI(Terminal User Interface) tool that combines the OpenAI API with the Spotify API, allowing an AI bot to recommend the music you are looking for through conversation. 
 
+<strong>You can listen to music by selecting from the recommended list. </strong>
+
 ## ⚠️ Notice
 Unfortunately, Chatify is currently not free to use; you need to have a Spotify Premium account and pay to use the OpenAI API.
 
