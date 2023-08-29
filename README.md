@@ -8,6 +8,9 @@
   <a href="https://goreportcard.com/report/github.com/JunNishimura/Chatify"><img src="https://goreportcard.com/badge/github.com/JunNishimura/Chatify" alt="Go Report Card"></a>
 </p>
 
+![screen](https://github.com/JunNishimura/Chatify/assets/28744711/396d90a8-eeb6-4f04-a705-94f9a1c6e733)
+
+
 ## 📖 Overview
 Chatify is a TUI(Terminal User Interface) tool that combines the OpenAI API with the Spotify API, allowing an AI bot to recommend the music you are looking for through conversation. 
 
