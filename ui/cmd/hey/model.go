@@ -101,6 +101,7 @@ func NewModel(ctx context.Context) (*Model, error) {
 
 	return &Model{
 		ctx:           ctx,
+		base:          base,
 		list:          newListModel([]list.Item{}, 0, 0),
 		user:          user,
 		spotifyClient: spotifyClient,
