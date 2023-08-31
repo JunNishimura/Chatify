@@ -7,15 +7,20 @@ import (
 	"log"
 
 	"github.com/JunNishimura/Chatify/cmd"
+	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 )
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "chatify",
-		Short: "chatify is a CLI tool that suggests music recommendations for you",
-		Long:  "chatify is a CLI tool that suggests music recommendations for you",
-		Run:   func(cmd *cobra.Command, args []string) {},
+		Use:   "chatify <command> [flags]",
+		Short: "Chatify",
+		Long:  "chatify is a TUI tool that suggests music recommendations for you",
+		Example: heredoc.Doc(`
+			$ chatify greeting
+			$ chatify hey
+		`),
+		Run: func(cmd *cobra.Command, args []string) {},
 	}
 
 	greetingCommand := cmd.NewGreetingCommand()
