@@ -44,8 +44,19 @@ func (s sessionState) String() string {
 	}
 }
 
+const albumMaxLen = 25
+
+type album string
+
+func (a album) String() string {
+	if len(a) > albumMaxLen {
+		return string(a)[:albumMaxLen]
+	}
+	return string(a)
+}
+
 type Item struct {
-	album   string
+	album   album
 	artists []string
 	uri     spotify.URI
 }
@@ -53,10 +64,10 @@ type Item struct {
 func (i Item) Title() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(style.White)).
-		Render(i.album)
+		Render(i.album.String())
 }
 func (i Item) Description() string { return strings.Join(i.artists, ", ") }
-func (i Item) FilterValue() string { return i.album }
+func (i Item) FilterValue() string { return i.album.String() }
 
 type Model struct {
 	ctx              context.Context

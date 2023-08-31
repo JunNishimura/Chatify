@@ -393,7 +393,7 @@ func (m *Model) recommend() tea.Msg {
 		}
 
 		item := Item{
-			album:   track.Album.Name,
+			album:   album(track.Album.Name),
 			artists: artists,
 			uri:     track.URI,
 		}
