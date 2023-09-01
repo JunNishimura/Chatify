@@ -10,9 +10,9 @@ import (
 
 func (m *Model) View() string {
 	if m.err != nil {
-		return style.ErrorView(m.base.Window.Width, m.base.Window.Height)
+		return style.ErrorView(m.Window.Width, m.Window.Height)
 	}
-	return lipgloss.Place(m.base.Window.Width, m.base.Window.Height, lipgloss.Center, lipgloss.Center,
+	return lipgloss.Place(m.Window.Width, m.Window.Height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			style.AsciiArt().Render(asciiArtView),
@@ -22,12 +22,12 @@ func (m *Model) View() string {
 }
 
 func (m *Model) getViewWidth() int {
-	halfWidth := m.base.Window.Width / 2
+	halfWidth := m.Window.Width / 2
 	return halfWidth
 }
 
 func (m *Model) getViewHeight() int {
-	halfHeight := m.base.Window.Height * 2 / 3
+	halfHeight := m.Window.Height * 2 / 3
 	return halfHeight
 }
 
@@ -50,7 +50,7 @@ func (m *Model) chatView() string {
 		s = lipgloss.Place(m.getViewWidth(), m.getViewHeight(), lipgloss.Center, lipgloss.Center, ss)
 	default:
 		var lastSpeaker base.Speaker
-		for _, message := range m.base.Conversation {
+		for _, message := range m.Conversation {
 			if message.Speaker == base.Bot {
 				s += style.BotChat(m.getViewWidth()).Render(message.Content) + "\n\n"
 				lastSpeaker = base.Bot
@@ -60,7 +60,7 @@ func (m *Model) chatView() string {
 			}
 		}
 		if s != "" && lastSpeaker == base.Bot && m.phase == questionPhase {
-			s += style.TextInput().Render(m.base.TextInput.View())
+			s += style.TextInput().Render(m.TextInput.View())
 		}
 	}
 	return s
