@@ -55,8 +55,8 @@ const (
 )
 
 type Model struct {
-	ctx           context.Context
-	base          *base.Model
+	ctx context.Context
+	*base.Base
 	phase         Phase
 	questionIndex int
 	qaList        []*QA
@@ -66,7 +66,7 @@ type Model struct {
 }
 
 func NewModel(ctx context.Context, port string) (*Model, error) {
-	base, err := base.NewModel()
+	base, err := base.New()
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func NewModel(ctx context.Context, port string) (*Model, error) {
 
 	return &Model{
 		ctx:           ctx,
-		base:          base,
+		Base:          base,
 		phase:         questionPhase,
 		questionIndex: 0,
 		qaList:        qaListTemplate,
