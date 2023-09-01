@@ -11,13 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	port string
+)
+
 func NewGreetingCommand() *cobra.Command {
-	return &cobra.Command{
+	greetingCmd := &cobra.Command{
 		Use:   "greeting",
 		Short: "config setting for Chatify",
 		Long:  "config setting for Chatify",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			model, err := greetingUI.NewModel(context.Background())
+			model, err := greetingUI.NewModel(context.Background(), port)
 			if err != nil {
 				return err
 			}
@@ -31,4 +36,8 @@ func NewGreetingCommand() *cobra.Command {
 			return nil
 		},
 	}
+
+	greetingCmd.Flags().StringVarP(&port, "port", "p", "8888", "port nubmer for Spotify authorization")
+
+	return greetingCmd
 }

@@ -65,13 +65,17 @@ type Model struct {
 	err           error
 }
 
-func NewModel(ctx context.Context) (*Model, error) {
+func NewModel(ctx context.Context, port string) (*Model, error) {
 	base, err := base.NewModel()
 	if err != nil {
 		return nil, err
 	}
 
 	base.Conversation = conversationTemplate
+
+	if err := base.Cfg.Set(config.PortKey, port); err != nil {
+		return nil, err
+	}
 
 	return &Model{
 		ctx:           ctx,

@@ -13,11 +13,6 @@ import (
 	"github.com/pkg/browser"
 )
 
-const (
-	authPort    = "8888"
-	redirectURI = "http://localhost:8888/callback"
-)
-
 type Client struct {
 	SpotifyChannel chan *spotify.Client
 	cfg            *config.Config
@@ -31,7 +26,7 @@ func NewClient(cfg *config.Config) *Client {
 		SpotifyChannel: make(chan *spotify.Client, 1),
 		cfg:            cfg,
 		auth:           NewAuth(cfg),
-		server:         &http.Server{Addr: fmt.Sprintf(":%s", authPort)},
+		server:         &http.Server{Addr: fmt.Sprintf(":%s", cfg.GetClientValue(config.PortKey))},
 		state:          uuid.New().String(),
 	}
 }
@@ -40,7 +35,7 @@ func NewAuth(cfg *config.Config) *spotifyauth.Authenticator {
 	return spotifyauth.New(
 		spotifyauth.WithClientID(cfg.GetClientValue(config.SpotifyIDKey)),
 		spotifyauth.WithClientSecret(cfg.GetClientValue(config.SpotifySecretKey)),
-		spotifyauth.WithRedirectURL(redirectURI),
+		spotifyauth.WithRedirectURL(fmt.Sprintf("http://localhost:%s/callback", cfg.GetClientValue(config.PortKey))),
 		spotifyauth.WithScopes(
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopeUserReadPlaybackState,
