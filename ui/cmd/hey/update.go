@@ -16,10 +16,6 @@ import (
 type errMsg struct{ err error }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		inputCmd tea.Cmd
-		listCmd  tea.Cmd
-	)
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.base.Window.UpdateSize()
@@ -90,10 +86,18 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = msg.err
 	}
 
-	m.base.TextInput, inputCmd = m.base.TextInput.Update(msg)
-	m.list, listCmd = m.list.Update(msg)
-
-	return m, tea.Batch(inputCmd, listCmd)
+	switch m.state {
+	case chatView:
+		var inputCmd tea.Cmd
+		m.base.TextInput, inputCmd = m.base.TextInput.Update(msg)
+		return m, inputCmd
+	case recommendationView:
+		var listCmd tea.Cmd
+		m.list, listCmd = m.list.Update(msg)
+		return m, listCmd
+	default:
+		return m, nil
+	}
 }
 
 type generationMsg struct{ resp openai.ChatCompletionResponse }
