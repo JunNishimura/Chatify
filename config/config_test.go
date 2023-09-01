@@ -68,6 +68,13 @@ func TestConfKey_isTokenKey(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "false; port",
+			fields: fields{
+				confkey: PortKey,
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -133,6 +140,13 @@ func TestConfKey_isClientKey(t *testing.T) {
 			name: "true; device id",
 			fields: fields{
 				confkey: DeviceID,
+			},
+			want: true,
+		},
+		{
+			name: "true; port",
+			fields: fields{
+				confkey: PortKey,
 			},
 			want: true,
 		},
@@ -274,6 +288,16 @@ func TestConfig_Set(t *testing.T) {
 			wantErr:   false,
 		},
 		{
+			name: "success; port",
+			args: args{
+				key:   PortKey,
+				value: "test",
+			},
+			wantKey:   PortKey,
+			wantValue: "test",
+			wantErr:   false,
+		},
+		{
 			name: "success; access token",
 			args: args{
 				key:   AccessTokenKey,
@@ -347,6 +371,7 @@ func TestConfig_IsClientValid(t *testing.T) {
 		spotifySecret string
 		openAIapiKey  string
 		deviceID      string
+		port          string
 		want          bool
 	}{
 		{
@@ -355,6 +380,7 @@ func TestConfig_IsClientValid(t *testing.T) {
 			spotifySecret: "test",
 			openAIapiKey:  "test",
 			deviceID:      "test",
+			port:          "test",
 			want:          true,
 		},
 		{
@@ -363,6 +389,7 @@ func TestConfig_IsClientValid(t *testing.T) {
 			spotifySecret: "",
 			openAIapiKey:  "",
 			deviceID:      "",
+			port:          "",
 			want:          false,
 		},
 	}
@@ -387,6 +414,7 @@ func TestConfig_IsClientValid(t *testing.T) {
 			conf.clientViper.Set(string(SpotifySecretKey), tt.spotifySecret)
 			conf.clientViper.Set(string(OpenAIAPIKey), tt.openAIapiKey)
 			conf.clientViper.Set(string(DeviceID), tt.deviceID)
+			conf.clientViper.Set(string(PortKey), tt.port)
 
 			if conf.IsClientValid() != tt.want {
 				t.Errorf("got: %v, want: %v", conf.IsClientValid(), tt.want)
