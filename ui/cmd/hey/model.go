@@ -70,8 +70,8 @@ func (i Item) Description() string { return strings.Join(i.artists, ", ") }
 func (i Item) FilterValue() string { return i.album.String() }
 
 type Model struct {
-	ctx              context.Context
-	base             *base.Model
+	ctx context.Context
+	*base.Base
 	state            sessionState
 	list             list.Model
 	selectedItem     Item
@@ -87,7 +87,7 @@ type Model struct {
 }
 
 func NewModel(ctx context.Context) (*Model, error) {
-	base, err := base.NewModel()
+	base, err := base.New()
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func NewModel(ctx context.Context) (*Model, error) {
 
 	return &Model{
 		ctx:           ctx,
-		base:          base,
+		Base:          base,
 		list:          newListModel([]list.Item{}, 0, 0),
 		user:          user,
 		spotifyClient: spotifyClient,

@@ -18,7 +18,7 @@ type errMsg struct{ err error }
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.base.Window.UpdateSize()
+		m.Window.UpdateSize()
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -28,14 +28,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			switch m.state {
 			case chatView:
-				answer := m.base.TextInput.Value()
+				answer := m.TextInput.Value()
 				m.chatCompMessages = append(m.chatCompMessages, openai.ChatCompletionMessage{
 					Role:    openai.ChatMessageRoleUser,
 					Content: answer,
 				})
-				m.base.Conversation = append(m.base.Conversation, &base.Message{Content: fmt.Sprintf("> %s", answer), Speaker: base.User})
+				m.Conversation = append(m.Conversation, &base.Message{Content: fmt.Sprintf("> %s", answer), Speaker: base.User})
 
-				m.base.TextInput.Reset()
+				m.TextInput.Reset()
 
 				if m.questionIndex == 0 {
 					// genres don't have to be converted into quantitative values
@@ -62,7 +62,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				Role:    openai.ChatMessageRoleAssistant,
 				Content: content,
 			})
-			m.base.Conversation = append(m.base.Conversation, &base.Message{Content: content, Speaker: base.Bot})
+			m.Conversation = append(m.Conversation, &base.Message{Content: content, Speaker: base.Bot})
 		}
 	case guessedMsg:
 		content := msg.resp.Choices[0].Message.Content
@@ -89,7 +89,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case chatView:
 		var inputCmd tea.Cmd
-		m.base.TextInput, inputCmd = m.base.TextInput.Update(msg)
+		m.TextInput, inputCmd = m.TextInput.Update(msg)
 		return m, inputCmd
 	case recommendationView:
 		var listCmd tea.Cmd
