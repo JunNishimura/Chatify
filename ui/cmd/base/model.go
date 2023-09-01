@@ -18,14 +18,14 @@ type Message struct {
 	Speaker Speaker
 }
 
-type Model struct {
+type Base struct {
 	Window       *utils.Window
 	Cfg          *config.Config
 	TextInput    textinput.Model
 	Conversation []*Message
 }
 
-func NewModel() (*Model, error) {
+func New() (*Base, error) {
 	window := utils.NewWindow()
 
 	cfg, err := loadConfig()
@@ -33,7 +33,7 @@ func NewModel() (*Model, error) {
 		return nil, err
 	}
 
-	return &Model{
+	return &Base{
 		Window:    window,
 		Cfg:       cfg,
 		TextInput: newTextInput(window.Width),
