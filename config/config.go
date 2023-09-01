@@ -27,6 +27,7 @@ const (
 	SpotifySecretKey ConfKey = "spotify_secret"
 	OpenAIAPIKey     ConfKey = "openai_api_key"
 	DeviceID         ConfKey = "device_id"
+	PortKey          ConfKey = "port"
 	AccessTokenKey   ConfKey = "access_token"
 	RefreshTokenKey  ConfKey = "refresh_token"
 	ExpirationKey    ConfKey = "expiration"
@@ -37,7 +38,7 @@ func (k ConfKey) isTokenKey() bool {
 }
 
 func (k ConfKey) isClientKey() bool {
-	return k == SpotifyIDKey || k == SpotifySecretKey || k == OpenAIAPIKey || k == DeviceID
+	return k == SpotifyIDKey || k == SpotifySecretKey || k == OpenAIAPIKey || k == DeviceID || k == PortKey
 }
 
 func newConfig() *Config {
@@ -181,11 +182,13 @@ func (c *Config) IsClientValid() bool {
 	spotifySecret := c.clientViper.GetString(string(SpotifySecretKey))
 	openAIApiKey := c.clientViper.GetString(string(OpenAIAPIKey))
 	deviceID := c.clientViper.GetString(string(DeviceID))
+	port := c.clientViper.GetString(string(PortKey))
 
 	return spotifyID != "" &&
 		spotifySecret != "" &&
 		openAIApiKey != "" &&
-		deviceID != ""
+		deviceID != "" &&
+		port != ""
 }
 
 func (c *Config) GetClientValue(key ConfKey) string {
