@@ -25,6 +25,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "tab":
+			if m.questionDone {
+				m.state = recommendationView
+			}
 			m.state = m.state.Switch()
 		case "enter":
 			if m.err != nil {
@@ -83,6 +86,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.chatCompMessages = append(m.chatCompMessages, msg.msg)
 		m.functionCall = "auto"
 		m.questionIndex++
+		if m.questionIndex == len(functions.List) {
+			m.questionDone = true
+			m.state = recommendationView
+		}
 		return m, tea.Batch(m.generate, m.recommend)
 	case recommendMsg:
 		m.recommendItems = msg.items
