@@ -11,13 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	recommendNum int
+)
+
 func NewHeyCommand() *cobra.Command {
-	return &cobra.Command{
+	heyCmd := &cobra.Command{
 		Use:   "hey",
 		Short: "start conversation with chatify",
 		Long:  "start conversation with chatify",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			model, err := heyUI.NewModel(context.Background())
+			model, err := heyUI.NewModel(context.Background(), recommendNum)
 			if err != nil {
 				return err
 			}
@@ -31,4 +36,8 @@ func NewHeyCommand() *cobra.Command {
 			return nil
 		},
 	}
+
+	heyCmd.Flags().IntVarP(&recommendNum, "num", "n", 25, "the number of recommendations(maximum is 100)")
+
+	return heyCmd
 }

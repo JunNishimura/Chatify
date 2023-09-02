@@ -83,10 +83,13 @@ type Model struct {
 	chatCompMessages []openai.ChatCompletionMessage
 	functions        []openai.FunctionDefinition
 	recommendItems   []list.Item
+	recommendNum     int
 	err              error
 }
 
-func NewModel(ctx context.Context) (*Model, error) {
+const maxRecommendNum = 100
+
+func NewModel(ctx context.Context, recommendNum int) (*Model, error) {
 	base, err := base.New()
 	if err != nil {
 		return nil, err
@@ -125,8 +128,16 @@ func NewModel(ctx context.Context) (*Model, error) {
 				Content: prompt.Base,
 			},
 		},
-		functions: functions.GetFunctionDefinitions(availableGenres),
+		functions:    functions.GetFunctionDefinitions(availableGenres),
+		recommendNum: min(recommendNum, maxRecommendNum),
 	}, nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func getSpotifyClient(ctx context.Context, cfg *config.Config) (*spotify.Client, error) {

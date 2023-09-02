@@ -340,8 +340,6 @@ func (m *Model) handleFunctionCall(functionCall *openai.FunctionCall) tea.Cmd {
 	return nil
 }
 
-const RecommendCount = 25
-
 type recommendMsg struct{ items []list.Item }
 
 func (m *Model) recommend() tea.Msg {
@@ -384,7 +382,7 @@ func (m *Model) recommend() tea.Msg {
 		trackAttrib.TargetSpeechiness(m.user.MusicOrientation.Speechiness.Value)
 	}
 
-	recommendations, err := m.spotifyClient.GetRecommendations(m.ctx, seeds, trackAttrib, spotify.Limit(RecommendCount))
+	recommendations, err := m.spotifyClient.GetRecommendations(m.ctx, seeds, trackAttrib, spotify.Limit(m.recommendNum))
 	if err != nil {
 		return errMsg{err}
 	}
