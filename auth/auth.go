@@ -40,6 +40,7 @@ func NewAuth(cfg *config.Config) *spotifyauth.Authenticator {
 			spotifyauth.ScopeUserReadPrivate,
 			spotifyauth.ScopeUserReadPlaybackState,
 			spotifyauth.ScopeUserModifyPlaybackState,
+			spotifyauth.ScopePlaylistModifyPublic,
 		),
 	)
 }

@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/JunNishimura/Chatify/ai/functions"
+	"github.com/JunNishimura/Chatify/config"
 	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/spotify/v2"
 	"github.com/charmbracelet/bubbles/list"
@@ -23,7 +25,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			return m, tea.Quit
+			return m, m.quit
 		case "tab":
 			if m.questionDone {
 				m.state = recommendationView
@@ -31,7 +33,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = m.state.Switch()
 		case "enter":
 			if m.err != nil {
-				return m, tea.Quit
+				return m, m.quit
 			}
 
 			switch m.state {
@@ -96,6 +98,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list = newListModel(m.recommendItems, m.getViewWidth(), m.getViewHeight())
 	case errMsg:
 		m.err = msg.err
+	case quitMsg:
+		return m, tea.Quit
 	}
 
 	switch m.state {
@@ -394,7 +398,7 @@ func (m *Model) recommend() tea.Msg {
 		trackAttrib.TargetSpeechiness(m.user.MusicOrientation.Speechiness.Value)
 	}
 
-	recommendations, err := m.spotifyClient.GetRecommendations(m.ctx, seeds, trackAttrib, spotify.Limit(m.recommendNum))
+	recommendations, err := m.spotifyClient.GetRecommendations(m.ctx, seeds, trackAttrib, spotify.Limit(m.opts.recommendNum))
 	if err != nil {
 		return errMsg{err}
 	}
@@ -407,6 +411,7 @@ func (m *Model) recommend() tea.Msg {
 		}
 
 		item := Item{
+			id:      track.ID,
 			album:   album(track.Album.Name),
 			artists: artists,
 			uri:     track.URI,
@@ -425,5 +430,45 @@ func (m *Model) playMusic() tea.Msg {
 	}); err != nil {
 		return errMsg{errNoDeviceFound}
 	}
+	return nil
+}
+
+type quitMsg struct{}
+
+func (m *Model) quit() tea.Msg {
+	if m.opts.playlist {
+		if err := m.createPlaylist(); err != nil {
+			return errMsg{err: err}
+		}
+	}
+
+	return quitMsg{}
+}
+
+func (m *Model) createPlaylist() error {
+	spotifyPlaylist, err := m.spotifyClient.CreatePlaylistForUser(
+		m.ctx,
+		m.Cfg.GetClientValue(config.UserIDKey),
+		fmt.Sprintf("chatify's recommendaiton(%s)", time.Now().Format("2006-01-02")),
+		"playlist made by chatify(https://github.com/JunNishimura/Chatify)",
+		true,
+		false,
+	)
+	if err != nil {
+		return err
+	}
+
+	trackIDs := make([]spotify.ID, 0, len(m.recommendItems))
+	for _, item := range m.recommendItems {
+		i, ok := item.(Item)
+		if ok {
+			trackIDs = append(trackIDs, i.id)
+		}
+	}
+
+	if _, err := m.spotifyClient.AddTracksToPlaylist(m.ctx, spotifyPlaylist.ID, trackIDs...); err != nil {
+		return err
+	}
+
 	return nil
 }

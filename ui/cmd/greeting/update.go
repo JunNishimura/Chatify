@@ -111,6 +111,10 @@ func (m *Model) authorize() tea.Msg {
 		return errMsg{err: err}
 	}
 
+	if err := m.Cfg.Set(config.UserIDKey, user.ID); err != nil {
+		return errMsg{err: err}
+	}
+
 	return spotifyMsg{
 		user:   user,
 		client: spotifyClient,

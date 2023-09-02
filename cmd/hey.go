@@ -13,6 +13,7 @@ import (
 
 var (
 	recommendNum int
+	playlist     bool
 )
 
 func NewHeyCommand() *cobra.Command {
@@ -22,7 +23,7 @@ func NewHeyCommand() *cobra.Command {
 		Long:  "start conversation with chatify",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			model, err := heyUI.NewModel(context.Background(), recommendNum)
+			model, err := heyUI.NewModel(context.Background(), heyUI.NewOpts(recommendNum, playlist))
 			if err != nil {
 				return err
 			}
@@ -38,6 +39,7 @@ func NewHeyCommand() *cobra.Command {
 	}
 
 	heyCmd.Flags().IntVarP(&recommendNum, "num", "n", 25, "the number of recommendations(maximum is 100)")
+	heyCmd.Flags().BoolVarP(&playlist, "playlist", "p", false, "make playlist based on chatify recommendations")
 
 	return heyCmd
 }
