@@ -1,14 +1,23 @@
 package hey
 
 import (
+	"errors"
+
 	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/Chatify/ui/style"
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	noDeviceMessage = "Fail to find active devices.\n\nPlease try again after opening Spotify App."
+)
+
 func (m *Model) View() string {
 	if m.err != nil {
-		return style.ErrorView(m.Window.Width, m.Window.Height)
+		if errors.Is(m.err, errNoDeviceFound) {
+			return style.ErrorView(noDeviceMessage, m.Window.Width, m.Window.Height)
+		}
+		return style.ErrorView(style.DefaultErrorMessage, m.Window.Width, m.Window.Height)
 	}
 
 	var s string
