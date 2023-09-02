@@ -19,6 +19,8 @@ Chatify is a TUI(Terminal User Interface) tool that combines the OpenAI API with
 # ⚠️ Notice
 Unfortunately, Chatify is currently not free to use; you need to have a Spotify Premium account and pay to use the OpenAI API.
 
+Also, it is recommended that the terminal is set to full-screen size when to use Chatify.
+
 # 👜 Prerequisites
 Chatify requires two things. 
 1. You need to have [a Spotify Premium Account](https://www.spotify.com/premium/) to use Spotify API.
