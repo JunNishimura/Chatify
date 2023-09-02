@@ -20,6 +20,12 @@ func (m *Model) View() string {
 		return style.ErrorView(style.DefaultErrorMessage, m.Window.Width, m.Window.Height)
 	}
 
+	if m.questionDone {
+		return lipgloss.Place(m.Window.Width, m.Window.Height, lipgloss.Center, lipgloss.Center,
+			style.RecommendationFocused(m.getViewWidth(), m.getViewHeight()).Render(m.recommendationView()),
+		)
+	}
+
 	var s string
 	if m.state == chatView {
 		s += lipgloss.Place(m.Window.Width, m.Window.Height, lipgloss.Center, lipgloss.Center,

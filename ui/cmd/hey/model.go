@@ -79,6 +79,7 @@ type Model struct {
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
 	questionIndex    int
+	questionDone     bool
 	functionCall     any
 	chatCompMessages []openai.ChatCompletionMessage
 	functions        []openai.FunctionDefinition
