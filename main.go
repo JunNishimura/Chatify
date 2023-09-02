@@ -30,6 +30,7 @@ func main() {
 		greetingCommand,
 		heyCommand,
 	)
+	rootCmd.CompletionOptions.DisableDefaultCmd = true // disable completions command
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
