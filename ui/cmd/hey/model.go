@@ -44,7 +44,7 @@ func (s sessionState) String() string {
 	}
 }
 
-const albumMaxLen = 25
+const albumMaxLen = 50
 
 type album string
 
