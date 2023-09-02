@@ -10,7 +10,7 @@ import (
 
 func (m *Model) View() string {
 	if m.err != nil {
-		return style.ErrorView(m.Window.Width, m.Window.Height)
+		return style.ErrorView(style.DefaultErrorMessage, m.Window.Width, m.Window.Height)
 	}
 	return lipgloss.Place(m.Window.Width, m.Window.Height, lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
