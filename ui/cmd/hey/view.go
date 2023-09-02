@@ -2,6 +2,7 @@ package hey
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/Chatify/ui/style"
@@ -18,6 +19,16 @@ func (m *Model) View() string {
 			return style.ErrorView(noDeviceMessage, m.Window.Width, m.Window.Height)
 		}
 		return style.ErrorView(style.DefaultErrorMessage, m.Window.Width, m.Window.Height)
+	}
+
+	if m.isQuit {
+		var msg string
+		if m.opts.playlist {
+			msg = fmt.Sprintf("I made a playlist for you!!\n\n%s\n\nLet's talk again!!", m.playlist.ExternalURLs["spotify"])
+		} else {
+			msg = "Thanks for talking to me!\n\nLet's talk again!!"
+		}
+		return style.QuitView(msg, m.Window.Width, m.Window.Height)
 	}
 
 	if m.questionDone {

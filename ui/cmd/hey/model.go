@@ -44,7 +44,7 @@ func (s sessionState) String() string {
 	}
 }
 
-const albumMaxLen = 50
+const albumMaxLen = 30
 
 type album string
 
@@ -91,8 +91,10 @@ type Model struct {
 	user             *model.User
 	spotifyClient    *spotify.Client
 	openaiClient     *openai.Client
+	playlist         *spotify.FullPlaylist
 	questionIndex    int
 	questionDone     bool
+	isQuit           bool
 	functionCall     any
 	chatCompMessages []openai.ChatCompletionMessage
 	functions        []openai.FunctionDefinition
