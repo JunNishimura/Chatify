@@ -56,6 +56,7 @@ func (a album) String() string {
 }
 
 type Item struct {
+	id      spotify.ID
 	album   album
 	artists []string
 	uri     spotify.URI
@@ -68,6 +69,18 @@ func (i Item) Title() string {
 }
 func (i Item) Description() string { return strings.Join(i.artists, ", ") }
 func (i Item) FilterValue() string { return i.album.String() }
+
+type Opts struct {
+	recommendNum int
+	playlist     bool
+}
+
+func NewOpts(recommendNum int, playlist bool) *Opts {
+	return &Opts{
+		recommendNum: min(recommendNum, maxRecommendNum),
+		playlist:     playlist,
+	}
+}
 
 type Model struct {
 	ctx context.Context
@@ -84,13 +97,13 @@ type Model struct {
 	chatCompMessages []openai.ChatCompletionMessage
 	functions        []openai.FunctionDefinition
 	recommendItems   []list.Item
-	recommendNum     int
+	opts             *Opts
 	err              error
 }
 
 const maxRecommendNum = 100
 
-func NewModel(ctx context.Context, recommendNum int) (*Model, error) {
+func NewModel(ctx context.Context, opts *Opts) (*Model, error) {
 	base, err := base.New()
 	if err != nil {
 		return nil, err
@@ -129,8 +142,8 @@ func NewModel(ctx context.Context, recommendNum int) (*Model, error) {
 				Content: prompt.Base,
 			},
 		},
-		functions:    functions.GetFunctionDefinitions(availableGenres),
-		recommendNum: min(recommendNum, maxRecommendNum),
+		functions: functions.GetFunctionDefinitions(availableGenres),
+		opts:      opts,
 	}, nil
 }
 
