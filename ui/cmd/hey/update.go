@@ -25,6 +25,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
+			if m.isQuit {
+				return m, tea.Quit
+			}
+
 			return m, m.quit
 		case "tab":
 			if m.questionDone {
@@ -34,6 +38,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.err != nil {
 				return m, m.quit
+			}
+			if m.isQuit {
+				return m, tea.Quit
 			}
 
 			switch m.state {
@@ -99,7 +106,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg.err
 	case quitMsg:
-		return m, tea.Quit
+		m.playlist = msg.playlist
+		m.isQuit = true
 	}
 
 	switch m.state {
@@ -433,19 +441,23 @@ func (m *Model) playMusic() tea.Msg {
 	return nil
 }
 
-type quitMsg struct{}
+type quitMsg struct {
+	playlist *spotify.FullPlaylist
+}
 
 func (m *Model) quit() tea.Msg {
 	if m.opts.playlist {
-		if err := m.createPlaylist(); err != nil {
+		playlist, err := m.createPlaylist()
+		if err != nil {
 			return errMsg{err: err}
 		}
+		return quitMsg{playlist: playlist}
 	}
 
 	return quitMsg{}
 }
 
-func (m *Model) createPlaylist() error {
+func (m *Model) createPlaylist() (*spotify.FullPlaylist, error) {
 	spotifyPlaylist, err := m.spotifyClient.CreatePlaylistForUser(
 		m.ctx,
 		m.Cfg.GetClientValue(config.UserIDKey),
@@ -455,7 +467,7 @@ func (m *Model) createPlaylist() error {
 		false,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	trackIDs := make([]spotify.ID, 0, len(m.recommendItems))
@@ -467,8 +479,8 @@ func (m *Model) createPlaylist() error {
 	}
 
 	if _, err := m.spotifyClient.AddTracksToPlaylist(m.ctx, spotifyPlaylist.ID, trackIDs...); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return spotifyPlaylist, nil
 }

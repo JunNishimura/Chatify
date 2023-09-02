@@ -119,3 +119,25 @@ func ErrorView(message string, windowWidth, windowHeight int) string {
 					Background(lipgloss.Color(BgColor)).
 					Render(message))))
 }
+
+const (
+	quitDisplayWidth  = 80
+	quitDisplayHeight = 10
+)
+
+func QuitView(message string, windowWidth, windowHeight int) string {
+	return lipgloss.Place(windowWidth, windowHeight, lipgloss.Center, lipgloss.Center,
+		lipgloss.NewStyle().
+			Width(quitDisplayWidth).
+			Height(quitDisplayHeight).
+			BorderStyle(lipgloss.ThickBorder()).
+			BorderForeground(lipgloss.Color(HighlightColor)).
+			Background(lipgloss.AdaptiveColor{Dark: BgColor, Light: BgColor}).
+			Render(lipgloss.Place(quitDisplayWidth, quitDisplayHeight, lipgloss.Center, lipgloss.Center,
+				lipgloss.NewStyle().
+					Width(quitDisplayWidth).
+					Align(lipgloss.Center).
+					Foreground(lipgloss.Color(HighlightColor)).
+					Background(lipgloss.Color(BgColor)).
+					Render(message))))
+}
