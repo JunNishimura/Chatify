@@ -98,12 +98,12 @@ func AsciiArt() lipgloss.Style {
 }
 
 const (
-	errorMessage       = "unexpected error happens.\n\nplease report at\n\nhttps://github.com/JunNishimura/Chatify/issues"
-	errorDisplayWidth  = 60
-	errorDisplayHeight = 10
+	DefaultErrorMessage = "unexpected error happens.\n\nplease report at\n\nhttps://github.com/JunNishimura/Chatify/issues"
+	errorDisplayWidth   = 60
+	errorDisplayHeight  = 10
 )
 
-func ErrorView(windowWidth, windowHeight int) string {
+func ErrorView(message string, windowWidth, windowHeight int) string {
 	return lipgloss.Place(windowWidth, windowHeight, lipgloss.Center, lipgloss.Center,
 		lipgloss.NewStyle().
 			Width(errorDisplayWidth).
@@ -117,5 +117,5 @@ func ErrorView(windowWidth, windowHeight int) string {
 					Align(lipgloss.Center).
 					Foreground(lipgloss.Color(Red)).
 					Background(lipgloss.Color(BgColor)).
-					Render(errorMessage))))
+					Render(message))))
 }
