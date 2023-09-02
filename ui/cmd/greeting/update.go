@@ -22,6 +22,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "enter":
+			if m.err != nil {
+				return m, tea.Quit
+			}
+
 			switch m.phase {
 			case questionPhase:
 				m.qaList[m.questionIndex].answer = m.TextInput.Value()

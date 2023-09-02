@@ -2,6 +2,7 @@ package hey
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -26,6 +27,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "tab":
 			m.state = m.state.Switch()
 		case "enter":
+			if m.err != nil {
+				return m, tea.Quit
+			}
+
 			switch m.state {
 			case chatView:
 				answer := m.TextInput.Value()
@@ -405,11 +410,13 @@ func (m *Model) recommend() tea.Msg {
 	return recommendMsg{items}
 }
 
+var errNoDeviceFound = errors.New("no active device found")
+
 func (m *Model) playMusic() tea.Msg {
 	if err := m.spotifyClient.PlayOpt(m.ctx, &spotify.PlayOptions{
 		URIs: []spotify.URI{m.selectedItem.uri},
 	}); err != nil {
-		return errMsg{err}
+		return errMsg{errNoDeviceFound}
 	}
 	return nil
 }
