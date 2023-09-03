@@ -8,8 +8,7 @@
   <a href="https://goreportcard.com/report/github.com/JunNishimura/Chatify"><img src="https://goreportcard.com/badge/github.com/JunNishimura/Chatify" alt="Go Report Card"></a>
 </p>
 
-![screen](https://github.com/JunNishimura/Chatify/assets/28744711/396d90a8-eeb6-4f04-a705-94f9a1c6e733)
-
+![chatify](https://github.com/JunNishimura/Chatify/assets/28744711/0a7a5b71-7505-40b5-859b-47c41575023e)
 
 # 📖 Overview
 Chatify is a TUI(Terminal User Interface) tool that combines the OpenAI API with the Spotify API, allowing an AI bot to recommend the music you are looking for through conversation. 
@@ -63,12 +62,18 @@ You need to provide a couple of information to Chatify at first.
 $ chatify greeting
 ```
 
+![スクリーンショット 2023-09-03 151906](https://github.com/JunNishimura/Chatify/assets/28744711/e7e88812-d354-46f8-8617-422a732d5975)
+
+
 ## 4. Talk with Chatify
 Let's talk to Chatify and embark on a journey to discover new music! 
 
 ```
 $ chatify hey
 ```
+
+![スクリーンショット 2023-09-03 152152](https://github.com/JunNishimura/Chatify/assets/28744711/0c0fa00f-8365-4ce0-9afe-2ee866f390e8)
+
 
 # ⌨️ Operation
 | Key | Action |
@@ -92,6 +97,9 @@ Flag to specify the number of recommendations. Default number is 25 and maximum 
 ### `-p`, `--playlist`
 Flag to enable chatify to make playlist based on the recommendation. Default is false.
 
+![スクリーンショット 2023-09-03 152350](https://github.com/JunNishimura/Chatify/assets/28744711/3cd87c11-f8f0-41bc-a681-e4fe86bcf7c2)
+
+![スクリーンショット 2023-09-03 152440](https://github.com/JunNishimura/Chatify/assets/28744711/2f3e8e01-56c4-4ca9-8966-ac657351f558)
 
 # 🪧 License
 Chatify is released under MIT License. See [MIT](https://raw.githubusercontent.com/JunNishimura/Chatify/main/LICENSE)
