@@ -105,7 +105,7 @@ type Model struct {
 
 const maxRecommendNum = 100
 
-func NewModel(ctx context.Context, opts *Opts) (*Model, error) {
+func NewModel(opts *Opts) (*Model, error) {
 	base, err := base.New()
 	if err != nil {
 		return nil, err
@@ -113,6 +113,8 @@ func NewModel(ctx context.Context, opts *Opts) (*Model, error) {
 
 	openAIAPIkey := base.Cfg.GetClientValue(config.OpenAIAPIKey)
 	openAIAPIclient := openai.NewClient(openAIAPIkey)
+
+	ctx := context.Background()
 
 	spotifyClient, err := getSpotifyClient(ctx, base.Cfg)
 	if err != nil {
@@ -130,7 +132,6 @@ func NewModel(ctx context.Context, opts *Opts) (*Model, error) {
 	}
 
 	return &Model{
-		ctx:           ctx,
 		Base:          base,
 		list:          newListModel([]list.Item{}, 0, 0),
 		user:          user,
