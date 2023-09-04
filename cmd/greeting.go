@@ -4,8 +4,6 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"context"
-
 	greetingUI "github.com/JunNishimura/Chatify/ui/cmd/greeting"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -22,7 +20,7 @@ func NewGreetingCommand() *cobra.Command {
 		Long:  "config setting for Chatify",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			model, err := greetingUI.NewModel(context.Background(), port)
+			model, err := greetingUI.NewModel(port)
 			if err != nil {
 				return err
 			}
