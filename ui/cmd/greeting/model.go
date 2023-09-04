@@ -1,8 +1,6 @@
 package greeting
 
 import (
-	"context"
-
 	"github.com/JunNishimura/Chatify/config"
 	"github.com/JunNishimura/Chatify/ui/cmd/base"
 	"github.com/JunNishimura/spotify/v2"
@@ -55,7 +53,6 @@ const (
 )
 
 type Model struct {
-	ctx context.Context
 	*base.Base
 	phase         Phase
 	questionIndex int
@@ -65,7 +62,7 @@ type Model struct {
 	err           error
 }
 
-func NewModel(ctx context.Context, port string) (*Model, error) {
+func NewModel(port string) (*Model, error) {
 	base, err := base.New()
 	if err != nil {
 		return nil, err
@@ -78,7 +75,6 @@ func NewModel(ctx context.Context, port string) (*Model, error) {
 	}
 
 	return &Model{
-		ctx:           ctx,
 		Base:          base,
 		phase:         questionPhase,
 		questionIndex: 0,

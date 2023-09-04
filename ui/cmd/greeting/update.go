@@ -1,6 +1,7 @@
 package greeting
 
 import (
+	"context"
 	"errors"
 
 	"github.com/JunNishimura/Chatify/auth"
@@ -106,7 +107,7 @@ func (m *Model) authorize() tea.Msg {
 
 	spotifyClient := <-authClient.SpotifyChannel
 
-	user, err := spotifyClient.CurrentUser(m.ctx)
+	user, err := spotifyClient.CurrentUser(context.Background())
 	if err != nil {
 		return errMsg{err: err}
 	}
@@ -124,7 +125,7 @@ func (m *Model) authorize() tea.Msg {
 type deviceMsg struct{ deviceID string }
 
 func (m *Model) getDevice() tea.Msg {
-	devices, err := m.spotifyClient.PlayerDevices(m.ctx)
+	devices, err := m.spotifyClient.PlayerDevices(context.Background())
 	if err != nil {
 		return errMsg{err}
 	}
