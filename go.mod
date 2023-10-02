@@ -11,7 +11,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/google/uuid v1.3.1
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
-	github.com/sashabaranov/go-openai v1.15.3
+	github.com/sashabaranov/go-openai v1.15.4
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.16.0
 	golang.org/x/oauth2 v0.12.0
