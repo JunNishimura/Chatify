@@ -5,8 +5,8 @@ go 1.19
 require (
 	github.com/JunNishimura/spotify/v2 v2.0.0-20230803143011-7b365448b4da
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
-	github.com/charmbracelet/bubbles v0.16.1
-	github.com/charmbracelet/bubbletea v0.24.2
+	github.com/charmbracelet/bubbles v0.17.1
+	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/gdamore/tcell/v2 v2.7.0
 	github.com/google/uuid v1.5.0
@@ -41,7 +41,7 @@ require (
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
-	github.com/sahilm/fuzzy v0.1.0 // indirect
+	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
