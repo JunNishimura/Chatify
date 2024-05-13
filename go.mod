@@ -6,7 +6,7 @@ require (
 	github.com/JunNishimura/spotify/v2 v2.0.0-20230803143011-7b365448b4da
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
 	github.com/charmbracelet/bubbles v0.18.0
-	github.com/charmbracelet/bubbletea v0.26.1
+	github.com/charmbracelet/bubbletea v0.26.2
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/google/uuid v1.6.0
