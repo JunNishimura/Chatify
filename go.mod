@@ -14,7 +14,7 @@ require (
 	github.com/sashabaranov/go-openai v1.37.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.26.0
 	golang.org/x/term v0.29.0
 )
 
