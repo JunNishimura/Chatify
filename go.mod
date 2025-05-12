@@ -1,6 +1,6 @@
 module github.com/JunNishimura/Chatify
 
-go 1.19
+go 1.23.0
 
 require (
 	github.com/JunNishimura/spotify/v2 v2.0.0-20230803143011-7b365448b4da
@@ -14,7 +14,7 @@ require (
 	github.com/sashabaranov/go-openai v1.38.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.30.0
 	golang.org/x/term v0.29.0
 )
 
